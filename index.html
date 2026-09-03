@@ -94,6 +94,12 @@
           <span id="txtGeminiStatus" class="hidden md:inline">Gemini AI</span>
         </button>
 
+        <!-- Gemini AI Capabilities Hub Button -->
+        <button onclick="openGeminiHubModal()" title="View All Gemini AI Integrations in MediDecode" class="px-2.5 py-1.5 rounded-xl border border-indigo-300 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 text-indigo-700 dark:text-indigo-300 text-xs font-bold transition flex items-center gap-1.5 shadow-2xs cursor-pointer">
+          <i class="fa-solid fa-sparkles text-indigo-500"></i>
+          <span class="hidden lg:inline">Gemini Hub</span>
+        </button>
+
         <!-- Sign In Button linking to login.html -->
         <a href="login.html" title="Sign In or Change Account" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-sky-300 dark:border-sky-700 bg-sky-50 dark:bg-sky-950/60 hover:bg-sky-100 dark:hover:bg-sky-900 text-sky-700 dark:text-sky-300 text-xs font-bold transition shadow-2xs">
           <i class="fa-solid fa-right-to-bracket"></i>
@@ -737,6 +743,26 @@
                 <strong>Plain English:</strong> Walk around the house gently as much as your energy allows. Use the breathing exercise ball-device every 2 hours while awake to keep your lungs clear.
               </p>
             </div>
+
+            <!-- GEMINI LIVE JARGON DECODER -->
+            <div class="p-4 bg-gradient-to-r from-sky-50 to-indigo-50 dark:from-slate-800/80 dark:to-indigo-950/40 border border-sky-200 dark:border-sky-800 rounded-2xl space-y-3 shadow-xs">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-extrabold text-sky-900 dark:text-sky-200 flex items-center gap-1.5">
+                  <i class="fa-solid fa-brain text-sky-600"></i> Translate Custom Medical Jargon with Gemini
+                </span>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-950 text-sky-800 dark:text-sky-300">
+                  Gemini 2.5 Flash
+                </span>
+              </div>
+              <div class="flex gap-2">
+                <input type="text" id="customJargonInput" placeholder="Paste doctor's note or medical terms (e.g. 'Dyspnea on exertion, S/P CABG')..." class="flex-1 px-3 py-2 text-xs border border-sky-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-sky-500" />
+                <button type="button" onclick="translateCustomJargonWithGemini()" class="px-4 py-2 bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 shadow-2xs cursor-pointer">
+                  <i class="fa-solid fa-wand-magic-sparkles"></i>
+                  <span>Simplify</span>
+                </button>
+              </div>
+              <div id="customJargonResultBox" class="hidden p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs text-slate-700 dark:text-slate-300 leading-relaxed font-medium"></div>
+            </div>
           </div>
 
           <!-- Red Flag Warning Signs -->
@@ -1271,6 +1297,210 @@
     </section>
 
   </main>
+
+  <!-- ========================================== -->
+  <!-- FLOATING MEDIBOT AI ASSISTANT WIDGET -->
+  <!-- ========================================== -->
+  <div id="medibotContainer" class="fixed bottom-5 right-5 z-40 flex flex-col items-end">
+    
+    <!-- Chat Window (Collapsible) -->
+    <div id="medibotChatWindow" class="hidden mb-3 w-[92vw] sm:w-96 max-h-[560px] h-[520px] bg-white dark:bg-slate-900 border-2 border-indigo-200 dark:border-indigo-800/80 rounded-3xl shadow-2xl flex flex-col overflow-hidden transition-all duration-300 transform scale-100 glass-panel">
+      
+      <!-- Bot Header -->
+      <div class="p-4 bg-gradient-to-r from-indigo-600 via-sky-600 to-teal-600 text-white flex items-center justify-between shrink-0 shadow-sm">
+        <div class="flex items-center gap-3">
+          <div class="relative">
+            <div class="w-9 h-9 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-base border border-white/30">
+              <i class="fa-solid fa-robot"></i>
+            </div>
+            <span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-indigo-600"></span>
+          </div>
+          <div>
+            <div class="font-extrabold text-sm flex items-center gap-1.5">
+              <span>MediBot AI</span>
+              <span class="text-[10px] font-bold px-1.5 py-0.2 rounded bg-white/20 text-white">Gemini 2.5</span>
+            </div>
+            <div class="text-[10px] text-sky-100 flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+              <span>Online • Clinical Pharmacology AI</span>
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center gap-1">
+          <button onclick="clearMediBotChat()" title="Clear chat history" class="w-7 h-7 rounded-lg bg-white/15 hover:bg-white/25 flex items-center justify-center text-xs transition cursor-pointer">
+            <i class="fa-solid fa-trash-can"></i>
+          </button>
+          <button onclick="toggleMediBot()" title="Close MediBot" class="w-7 h-7 rounded-lg bg-white/15 hover:bg-white/25 flex items-center justify-center text-xs transition cursor-pointer">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Action Chips Carousel -->
+      <div class="p-2 bg-indigo-50/60 dark:bg-slate-800/60 border-b border-slate-200/80 dark:border-slate-800 shrink-0 overflow-x-auto flex gap-1.5 text-[11px] font-bold">
+        <button type="button" onclick="sendQuickBotMessage('Can I drink tea with Thyronorm in the morning?')" class="px-2.5 py-1 rounded-xl bg-white dark:bg-slate-800 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 whitespace-nowrap shadow-2xs transition cursor-pointer">
+          ☕ Chai & Thyronorm?
+        </button>
+        <button type="button" onclick="sendQuickBotMessage('What foods should I avoid with Metformin and Atorvastatin?')" class="px-2.5 py-1 rounded-xl bg-white dark:bg-slate-800 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 hover:bg-rose-100 whitespace-nowrap shadow-2xs transition cursor-pointer">
+          🚫 Foods to Avoid
+        </button>
+        <button type="button" onclick="sendQuickBotMessage('Explain all my medicines in simple words')" class="px-2.5 py-1 rounded-xl bg-white dark:bg-slate-800 border border-sky-200 dark:border-sky-800 text-sky-700 dark:text-sky-300 hover:bg-sky-100 whitespace-nowrap shadow-2xs transition cursor-pointer">
+          💊 My Medicines
+        </button>
+        <button type="button" onclick="sendQuickBotMessage('What should I do if I forget to take a dose?')" class="px-2.5 py-1 rounded-xl bg-white dark:bg-slate-800 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 hover:bg-amber-100 whitespace-nowrap shadow-2xs transition cursor-pointer">
+          ⏰ Missed Dose?
+        </button>
+      </div>
+
+      <!-- Chat Messages Scroll Area -->
+      <div id="medibotMessages" class="flex-1 p-4 overflow-y-auto space-y-3 text-xs">
+        <!-- Initial Welcome Bubble -->
+        <div class="flex items-start gap-2.5">
+          <div class="w-7 h-7 rounded-xl bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xs shrink-0 mt-0.5">
+            <i class="fa-solid fa-robot"></i>
+          </div>
+          <div class="max-w-[85%] p-3 rounded-2xl bg-indigo-50/70 dark:bg-slate-800 border border-indigo-100 dark:border-indigo-900/60 text-slate-800 dark:text-slate-100 space-y-1.5">
+            <p class="font-extrabold text-indigo-900 dark:text-indigo-300 text-[11px]">Hello! I am MediBot AI 🩺</p>
+            <p class="leading-relaxed">
+              I am powered by <strong>Google Gemini</strong>. Ask me anything about your medications, food interactions, dangerous combinations, or lab test results!
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat Input Footer -->
+      <form onsubmit="handleMediBotSubmit(event)" class="p-3 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center gap-2 shrink-0">
+        <input type="text" id="medibotInput" placeholder="Ask about medicines, food, or lab reports..." class="flex-1 px-3.5 py-2.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-white" />
+        <button type="submit" id="btnMediBotSend" class="w-9 h-9 rounded-xl bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-700 hover:to-sky-700 text-white flex items-center justify-center text-xs shadow-sm transition shrink-0 cursor-pointer">
+          <i class="fa-solid fa-paper-plane"></i>
+        </button>
+      </form>
+    </div>
+
+    <!-- Floating Toggle Button -->
+    <button onclick="toggleMediBot()" id="btnMediBotFloating" class="group flex items-center gap-2.5 px-4 py-3 bg-gradient-to-r from-indigo-600 via-sky-600 to-teal-600 hover:from-indigo-700 hover:to-teal-700 text-white rounded-2xl shadow-xl shadow-indigo-600/30 transition-all duration-300 transform hover:scale-105 cursor-pointer border border-white/20">
+      <div class="relative">
+        <i class="fa-solid fa-robot text-lg"></i>
+        <span class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-400 border border-indigo-700 animate-pulse"></span>
+      </div>
+      <div class="text-left">
+        <div class="font-extrabold text-xs leading-none">Ask MediBot AI</div>
+        <div class="text-[10px] text-sky-100 font-medium leading-tight mt-0.5">Gemini 2.5 Flash</div>
+      </div>
+    </button>
+  </div>
+
+  <!-- MODAL: GEMINI AI ALL-INTEGRATIONS HUB -->
+  <div id="geminiHubModal" class="fixed inset-0 z-50 bg-black/75 glass-panel hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 border-2 border-indigo-300 dark:border-indigo-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-5">
+      <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-sky-500 to-teal-400 text-white flex items-center justify-center text-lg shadow-md shadow-indigo-500/20">
+            <i class="fa-solid fa-sparkles"></i>
+          </div>
+          <div>
+            <h3 class="font-extrabold text-slate-900 dark:text-white text-base tracking-tight">Google Gemini AI Integrations</h3>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">All 5 clinical AI modules running in MediDecode</p>
+          </div>
+        </div>
+        <button onclick="closeGeminiHubModal()" class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-white flex items-center justify-center transition cursor-pointer">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Capabilities List -->
+      <div class="space-y-2.5 text-xs">
+        
+        <!-- Module 1: Bot -->
+        <div onclick="closeGeminiHubModal(); toggleMediBot();" class="p-3.5 rounded-2xl border border-indigo-200 dark:border-indigo-900/60 bg-indigo-50/50 dark:bg-indigo-950/30 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition cursor-pointer flex items-start gap-3">
+          <div class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center text-sm shrink-0 shadow-xs">
+            <i class="fa-solid fa-robot"></i>
+          </div>
+          <div class="flex-1">
+            <div class="flex items-center justify-between">
+              <span class="font-extrabold text-slate-900 dark:text-white">1. MediBot Conversational AI</span>
+              <span class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400">Floating Chat ↗</span>
+            </div>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+              Available 24/7 on every page to answer clinical questions about your prescriptions, timings, and side effects.
+            </p>
+          </div>
+        </div>
+
+        <!-- Module 2: OCR Scanner -->
+        <div onclick="closeGeminiHubModal(); switchTab('scanner');" class="p-3.5 rounded-2xl border border-sky-200 dark:border-sky-900/60 bg-sky-50/50 dark:bg-sky-950/30 hover:bg-sky-100 dark:hover:bg-sky-900/50 transition cursor-pointer flex items-start gap-3">
+          <div class="w-8 h-8 rounded-xl bg-sky-600 text-white flex items-center justify-center text-sm shrink-0 shadow-xs">
+            <i class="fa-solid fa-camera"></i>
+          </div>
+          <div class="flex-1">
+            <div class="flex items-center justify-between">
+              <span class="font-extrabold text-slate-900 dark:text-white">2. Multimodal Prescription Vision OCR</span>
+              <span class="text-[10px] font-bold text-sky-600 dark:text-sky-400">Scan Tab ↗</span>
+            </div>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+              Gemini 2.5 Flash reads doctors' handwritten prescriptions from photos and PDFs with structured clinical parsing.
+            </p>
+          </div>
+        </div>
+
+        <!-- Module 3: Food Safety -->
+        <div onclick="closeGeminiHubModal(); switchTab('foodsafety');" class="p-3.5 rounded-2xl border border-rose-200 dark:border-rose-900/60 bg-rose-50/50 dark:bg-rose-950/30 hover:bg-rose-100 dark:hover:bg-rose-900/50 transition cursor-pointer flex items-start gap-3">
+          <div class="w-8 h-8 rounded-xl bg-rose-600 text-white flex items-center justify-center text-sm shrink-0 shadow-xs">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+          <div class="flex-1">
+            <div class="flex items-center justify-between">
+              <span class="font-extrabold text-slate-900 dark:text-white">3. Food–Drug Interaction Safety Matrix</span>
+              <span class="text-[10px] font-bold text-rose-600 dark:text-rose-400">Foods Tab ↗</span>
+            </div>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+              Decodes dangerous food interactions (grapefruit + statins, alcohol + metformin, morning chai chelation) with safe swaps.
+            </p>
+          </div>
+        </div>
+
+        <!-- Module 4: Lab Reports -->
+        <div onclick="closeGeminiHubModal(); switchTab('reports');" class="p-3.5 rounded-2xl border border-teal-200 dark:border-teal-900/60 bg-teal-50/50 dark:bg-teal-950/30 hover:bg-teal-100 dark:hover:bg-teal-900/50 transition cursor-pointer flex items-start gap-3">
+          <div class="w-8 h-8 rounded-xl bg-teal-600 text-white flex items-center justify-center text-sm shrink-0 shadow-xs">
+            <i class="fa-solid fa-file-waveform"></i>
+          </div>
+          <div class="flex-1">
+            <div class="flex items-center justify-between">
+              <span class="font-extrabold text-slate-900 dark:text-white">4. Lab Reports & Diagnostic Simplifier</span>
+              <span class="text-[10px] font-bold text-teal-600 dark:text-teal-400">Reports Tab ↗</span>
+            </div>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+              Translates complex blood tests, CBC, lipid profiles, and pathology reports into plain, easy-to-understand language.
+            </p>
+          </div>
+        </div>
+
+        <!-- Module 5: Discharge Explainer -->
+        <div onclick="closeGeminiHubModal(); switchTab('discharge');" class="p-3.5 rounded-2xl border border-amber-200 dark:border-amber-900/60 bg-amber-50/50 dark:bg-amber-950/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition cursor-pointer flex items-start gap-3">
+          <div class="w-8 h-8 rounded-xl bg-amber-600 text-white flex items-center justify-center text-sm shrink-0 shadow-xs">
+            <i class="fa-solid fa-file-prescription"></i>
+          </div>
+          <div class="flex-1">
+            <div class="flex items-center justify-between">
+              <span class="font-extrabold text-slate-900 dark:text-white">5. Discharge Explainer & Jargon Decoder</span>
+              <span class="text-[10px] font-bold text-amber-600 dark:text-amber-400">Discharge Tab ↗</span>
+            </div>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+              Converts intimidating hospital medical terminology into 5th-grade language for patients and family caregivers.
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="pt-3 border-t border-slate-200 dark:border-slate-800 flex justify-between items-center text-[11px] text-slate-500">
+        <span>Active Model: <strong class="text-indigo-600 dark:text-indigo-400">Gemini 2.5 Flash</strong></span>
+        <button onclick="closeGeminiHubModal(); openGeminiModal();" class="text-sky-600 dark:text-sky-400 font-bold hover:underline cursor-pointer">
+          Manage API Key →
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- MODAL: GOOGLE GEMINI AI CONFIGURATION -->
   <div id="geminiModal" class="fixed inset-0 z-50 bg-black/75 glass-panel hidden flex items-center justify-center p-4">
@@ -5221,6 +5451,202 @@
 
     function printReportSummary() {
       window.print();
+    }
+
+    // ==========================================
+    // MEDIBOT CONVERSATIONAL AI ASSISTANT
+    // ==========================================
+    let medibotHistory = [];
+
+    function toggleMediBot() {
+      const chatWindow = document.getElementById('medibotChatWindow');
+      if (!chatWindow) return;
+      if (chatWindow.classList.contains('hidden')) {
+        chatWindow.classList.remove('hidden');
+        const input = document.getElementById('medibotInput');
+        if (input) input.focus();
+      } else {
+        chatWindow.classList.add('hidden');
+      }
+    }
+
+    function openGeminiHubModal() {
+      const modal = document.getElementById('geminiHubModal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeGeminiHubModal() {
+      const modal = document.getElementById('geminiHubModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function sendQuickBotMessage(text) {
+      const input = document.getElementById('medibotInput');
+      if (input) input.value = text;
+      handleMediBotSubmit();
+    }
+
+    async function handleMediBotSubmit(event) {
+      if (event) event.preventDefault();
+      const input = document.getElementById('medibotInput');
+      const message = input ? input.value.trim() : '';
+      if (!message) return;
+
+      input.value = '';
+      renderMediBotUserMessage(message);
+
+      const messagesContainer = document.getElementById('medibotMessages');
+      const loadingId = 'medibotLoading_' + Date.now();
+      if (messagesContainer) {
+        messagesContainer.insertAdjacentHTML('beforeend', `
+          <div id="${loadingId}" class="flex items-start gap-2.5">
+            <div class="w-7 h-7 rounded-xl bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xs shrink-0 mt-0.5">
+              <i class="fa-solid fa-robot"></i>
+            </div>
+            <div class="p-3 rounded-2xl bg-indigo-50/70 dark:bg-slate-800 border border-indigo-100 dark:border-indigo-900/60 text-slate-500 italic flex items-center gap-2">
+              <i class="fa-solid fa-circle-notch fa-spin text-indigo-500"></i> Thinking with Gemini 2.5 Flash...
+            </div>
+          </div>
+        `);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }
+
+      const currentMeds = (activePrescription && activePrescription.medications) ? activePrescription.medications : [];
+
+      try {
+        const resp = await fetch('/api/v1/bot/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: message,
+            history: medibotHistory,
+            medications: currentMeds,
+            language: currentLang || 'en'
+          })
+        });
+
+        const data = await resp.json();
+        const loadingEl = document.getElementById(loadingId);
+        if (loadingEl) loadingEl.remove();
+
+        if (resp.ok && data) {
+          renderMediBotBotMessage(data.reply, data.model_used);
+          medibotHistory.push({ role: 'user', content: message });
+          medibotHistory.push({ role: 'assistant', content: data.reply });
+        } else {
+          renderMediBotBotMessage("Sorry, I encountered an issue consulting the clinical engine. Please try again.", "Error");
+        }
+      } catch (err) {
+        const loadingEl = document.getElementById(loadingId);
+        if (loadingEl) loadingEl.remove();
+        renderMediBotBotMessage("Network error communicating with MediBot server.", "Error");
+      }
+    }
+
+    function renderMediBotUserMessage(text) {
+      const container = document.getElementById('medibotMessages');
+      if (!container) return;
+      container.insertAdjacentHTML('beforeend', `
+        <div class="flex items-start justify-end gap-2.5">
+          <div class="max-w-[85%] p-3 rounded-2xl bg-gradient-to-r from-indigo-600 to-sky-600 text-white shadow-xs font-semibold">
+            ${text}
+          </div>
+          <div class="w-7 h-7 rounded-xl bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 flex items-center justify-center text-xs shrink-0 mt-0.5">
+            <i class="fa-solid fa-user"></i>
+          </div>
+        </div>
+      `);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function renderMediBotBotMessage(reply, model) {
+      const container = document.getElementById('medibotMessages');
+      if (!container) return;
+
+      const formatted = reply
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\n\n/g, '<div class="h-2"></div>')
+        .replace(/\n/g, '<br>');
+
+      const speechSafe = reply.replace(/[\*#🚫💡\-]/g, '').replace(/'/g, "\\'");
+
+      container.insertAdjacentHTML('beforeend', `
+        <div class="flex items-start gap-2.5">
+          <div class="w-7 h-7 rounded-xl bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xs shrink-0 mt-0.5">
+            <i class="fa-solid fa-robot"></i>
+          </div>
+          <div class="max-w-[85%] p-3 rounded-2xl bg-indigo-50/70 dark:bg-slate-800 border border-indigo-100 dark:border-indigo-900/60 text-slate-800 dark:text-slate-100 space-y-1.5 shadow-xs">
+            <div class="flex items-center justify-between text-[10px] text-slate-400 border-b border-indigo-100/50 dark:border-slate-700/50 pb-1">
+              <span class="font-bold text-indigo-600 dark:text-indigo-400">MediBot AI (${model || 'Gemini'})</span>
+              <button type="button" onclick="speakText('${speechSafe}')" class="hover:text-indigo-500 cursor-pointer flex items-center gap-1">
+                <i class="fa-solid fa-volume-high"></i> Listen
+              </button>
+            </div>
+            <div class="leading-relaxed font-medium">
+              ${formatted}
+            </div>
+          </div>
+        </div>
+      `);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function clearMediBotChat() {
+      medibotHistory = [];
+      const container = document.getElementById('medibotMessages');
+      if (container) {
+        container.innerHTML = `
+          <div class="flex items-start gap-2.5">
+            <div class="w-7 h-7 rounded-xl bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xs shrink-0 mt-0.5">
+              <i class="fa-solid fa-robot"></i>
+            </div>
+            <div class="max-w-[85%] p-3 rounded-2xl bg-indigo-50/70 dark:bg-slate-800 border border-indigo-100 dark:border-indigo-900/60 text-slate-800 dark:text-slate-100 space-y-1.5">
+              <p class="font-extrabold text-indigo-900 dark:text-indigo-300 text-[11px]">Chat cleared! 🩺</p>
+              <p class="leading-relaxed">
+                How can I assist you with your medications, food rules, or lab reports today?
+              </p>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    async function translateCustomJargonWithGemini() {
+      const input = document.getElementById('customJargonInput');
+      const box = document.getElementById('customJargonResultBox');
+      const query = input ? input.value.trim() : '';
+      if (!query || !box) return;
+
+      box.classList.remove('hidden');
+      box.innerHTML = '<span class="text-sky-600 flex items-center gap-2"><i class="fa-solid fa-circle-notch fa-spin"></i> Translating jargon with Gemini...</span>';
+
+      try {
+        const resp = await fetch('/api/v1/bot/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: `Translate this medical jargon or hospital doctor order into crystal-clear 5th-grade plain language: "${query}"`,
+            language: currentLang || 'en'
+          })
+        });
+        const data = await resp.json();
+        if (resp.ok && data) {
+          const speechSafe = data.reply.replace(/[\*#🚫💡\-]/g, '').replace(/'/g, "\\'");
+          box.innerHTML = `
+            <div class="font-extrabold text-sky-800 dark:text-sky-300 mb-1 flex items-center justify-between">
+              <span>Plain English Translation:</span>
+              <button type="button" onclick="speakText('${speechSafe}')" class="text-[11px] font-bold text-sky-600 hover:underline flex items-center gap-1 cursor-pointer">
+                <i class="fa-solid fa-volume-high"></i> Listen
+              </button>
+            </div>
+            <p>${data.reply.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</p>
+          `;
+        } else {
+          box.innerHTML = '<span class="text-rose-500">Failed to translate jargon.</span>';
+        }
+      } catch (err) {
+        box.innerHTML = '<span class="text-rose-500">Network error translating jargon.</span>';
+      }
     }
 
     // Initialize state
