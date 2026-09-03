@@ -30,6 +30,10 @@ ENV/
 uploads/
 *.pdf
 docs/*.pdf
+*.pptx
+*.ppt
+docs/*.pptx
+docs/*.ppt
 
 # Node
 node_modules/
