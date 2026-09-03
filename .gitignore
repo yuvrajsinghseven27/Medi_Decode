@@ -28,6 +28,12 @@ ENV/
 *.db
 *.sqlite3
 uploads/
+*.pdf
+docs/*.pdf
+*.pptx
+*.ppt
+docs/*.pptx
+docs/*.ppt
 
 # Node
 node_modules/
