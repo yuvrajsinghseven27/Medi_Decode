@@ -26,9 +26,6 @@ import {
   AlertTriangle,
   ArrowRight,
 } from 'lucide-react';
-import { MediBotWidget } from './components/MediBotWidget';
-import { ReportsSummarizer } from './components/ReportsSummarizer';
-import { AuthModal } from './components/AuthModal';
 
 const mockPrescriptions: Prescription[] = [
   {
@@ -263,7 +260,6 @@ export function App() {
 
   // Schedule State
   const [scheduleData, setScheduleData] = useState<DailyScheduleView>(INITIAL_SCHEDULE);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   const loadLiveBackendData = useCallback(async (userId: string) => {
     try {
@@ -391,7 +387,6 @@ export function App() {
         patientName={currentUser?.full_name || 'Ramesh Patel'}
         patientId={currentUser ? `#MED-${currentUser.id.slice(0, 4).toUpperCase()}` : '#MED-4092'}
         onUploadClick={() => setActiveTab('prescriptions')}
-        onAccountClick={() => setIsAuthModalOpen(true)}
       />
 
       <div className="flex flex-1">
@@ -561,12 +556,7 @@ export function App() {
             />
           )}
 
-          {/* TAB 5: DIAGNOSTIC LAB REPORTS */}
-          {activeTab === 'reports' && (
-            <ReportsSummarizer />
-          )}
-
-          {/* TAB 6: INTAKE LOG */}
+          {/* TAB 5: INTAKE LOG */}
           {activeTab === 'history' && (
             <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-8 text-center text-slate-400">
               <Pill className="h-10 w-10 text-teal-400 mx-auto mb-3 opacity-60" />
@@ -578,34 +568,6 @@ export function App() {
           )}
         </main>
       </div>
-
-      {/* Floating MediBot AI Assistant (Gemini 3.6 Flash) */}
-      <MediBotWidget />
-
-      {/* Patient Account & System Links Modal */}
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-        currentPatientName={currentUser?.full_name || 'Ramesh Patel'}
-        onSelectPatient={(name, id) => {
-          if (currentUser) {
-            setCurrentUser({ ...currentUser, full_name: name, id: id });
-          } else {
-            setCurrentUser({
-              id,
-              full_name: name,
-              phone: '+91 98765 43210',
-              preferred_language: 'en',
-              cultural_dietary_profile: {
-                dietary_type: 'Vegetarian',
-                tea_dairy_intake: 'High',
-                fasting_routines: ['NONE'],
-                notes: 'Standard profile',
-              },
-            });
-          }
-        }}
-      />
     </div>
   );
 }

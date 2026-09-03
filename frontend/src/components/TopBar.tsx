@@ -1,5 +1,5 @@
 import React from 'react';
-import { PhoneCall, Bell, Activity, UploadCloud, Key } from 'lucide-react';
+import { PhoneCall, Bell, Activity, UploadCloud } from 'lucide-react';
 
 interface TopBarProps {
   backendStatus: 'connected' | 'checking' | 'offline';
@@ -7,7 +7,6 @@ interface TopBarProps {
   patientName?: string;
   patientId?: string;
   onUploadClick: () => void;
-  onAccountClick?: () => void;
 }
 
 export const TopBar: React.FC<TopBarProps> = ({
@@ -16,7 +15,6 @@ export const TopBar: React.FC<TopBarProps> = ({
   patientName = 'Ramesh Patel',
   patientId = '#MED-4092',
   onUploadClick,
-  onAccountClick,
 }) => {
   return (
     <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-slate-800 bg-slate-900/90 px-4 sm:px-6 backdrop-blur-md">
@@ -58,18 +56,6 @@ export const TopBar: React.FC<TopBarProps> = ({
 
       {/* Action Controls */}
       <div className="flex items-center gap-2 sm:gap-4">
-        {/* API Docs Launcher */}
-        <a
-          href="/docs"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="hidden items-center gap-1.5 rounded-lg border border-teal-500/30 bg-teal-500/10 px-2.5 py-1.5 text-xs font-semibold text-teal-300 transition-colors hover:bg-teal-500/20 sm:flex"
-          title="Open Swagger API Explorer"
-        >
-          <Key className="h-3.5 w-3.5 text-teal-400" />
-          <span>API Docs</span>
-        </a>
-
         {/* Emergency Quick Action */}
         <a
           href="tel:911"
@@ -98,12 +84,8 @@ export const TopBar: React.FC<TopBarProps> = ({
           <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-teal-400 ring-2 ring-slate-900" />
         </button>
 
-        {/* User / Patient Profile (Clickable modal opener) */}
-        <button
-          onClick={onAccountClick}
-          className="flex items-center gap-2.5 border-l border-slate-800 pl-2 sm:pl-4 hover:opacity-80 transition-opacity text-left"
-          title="Switch Patient or View System Links"
-        >
+        {/* User / Patient Profile */}
+        <div className="flex items-center gap-2.5 border-l border-slate-800 pl-2 sm:pl-4">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-800 text-xs font-semibold text-teal-300 ring-1 ring-slate-700">
             {patientName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'RP'}
           </div>
@@ -111,7 +93,7 @@ export const TopBar: React.FC<TopBarProps> = ({
             <p className="text-xs font-medium text-slate-200">{patientName}</p>
             <p className="text-[10px] text-slate-400">ID: {patientId}</p>
           </div>
-        </button>
+        </div>
       </div>
     </header>
   );

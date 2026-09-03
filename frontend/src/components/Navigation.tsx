@@ -6,10 +6,9 @@ import {
   ShieldAlert,
   History,
   Pill,
-  ClipboardList,
 } from 'lucide-react';
 
-export type NavTab = 'overview' | 'prescriptions' | 'schedule' | 'safety' | 'reports' | 'history';
+export type NavTab = 'overview' | 'prescriptions' | 'schedule' | 'safety' | 'history';
 
 interface NavigationProps {
   activeTab: NavTab;
@@ -32,7 +31,6 @@ export const Navigation: React.FC<NavigationProps> = ({
       icon: ShieldAlert,
       badge: safetyAlertCount,
     },
-    { id: 'reports' as NavTab, label: 'Lab Reports', icon: ClipboardList },
     { id: 'history' as NavTab, label: 'Intake Log', icon: History },
   ];
 
