@@ -32,6 +32,11 @@ from app.schemas.safety import (
     SafetyAlertCreate,
     SafetyAlertRead,
 )
+from app.schemas.ocr import (
+    ExtractedMedication,
+    PrescriptionExtractionResult,
+    PrescriptionUploadResponse,
+)
 
 __all__ = [
     "FieldWithConfidence",
@@ -58,4 +63,7 @@ __all__ = [
     "SafetyAlertBase",
     "SafetyAlertCreate",
     "SafetyAlertRead",
+    "ExtractedMedication",
+    "PrescriptionExtractionResult",
+    "PrescriptionUploadResponse",
 ]

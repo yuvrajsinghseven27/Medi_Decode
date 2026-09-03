@@ -27,6 +27,7 @@ ENV/
 .pytest_cache/
 *.db
 *.sqlite3
+uploads/
 
 # Node
 node_modules/
