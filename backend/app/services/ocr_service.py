@@ -42,14 +42,19 @@ class OCRService:
         self._client: Optional[genai.Client] = None
 
     @property
+    def current_api_key(self) -> str:
+        return self.api_key or settings.GEMINI_API_KEY
+
+    @property
     def client(self) -> genai.Client:
-        if self._client is None:
-            # Initialize official google-genai Client
-            if not self.api_key:
-                raise ValueError(
-                    "GEMINI_API_KEY is not configured. Please set GEMINI_API_KEY in your environment or backend/.env file."
-                )
-            self._client = genai.Client(api_key=self.api_key)
+        key = self.current_api_key
+        if not key:
+            raise ValueError(
+                "GEMINI_API_KEY is not configured. Please set GEMINI_API_KEY in backend/.env or via the web portal."
+            )
+        if self._client is None or getattr(self, "_active_key", None) != key:
+            self._client = genai.Client(api_key=key)
+            self._active_key = key
         return self._client
 
     async def parse_prescription_document(
@@ -57,7 +62,7 @@ class OCRService:
         file_bytes: bytes,
         mime_type: str,
     ) -> PrescriptionExtractionResult:
-        """Parses a scanned prescription image or PDF using Gemini 2.5 Flash multimodal vision.
+        """Parses a scanned prescription image or PDF using Gemini Flash multimodal vision.
 
         Args:
             file_bytes: Binary buffer of the uploaded file.
@@ -86,7 +91,14 @@ class OCRService:
             "frequencies, food timing relations, and doctor details into the requested clinical JSON schema."
         )
 
-        models_to_try = [self.model_name, "gemini-3.6-flash", "gemini-3.5-flash", "gemini-flash-latest"]
+        models_to_try = [
+            "gemini-2.5-flash",
+            "gemini-2.0-flash",
+            "gemini-1.5-flash",
+            "gemini-flash-latest",
+            "gemini-2.5-pro",
+            "gemini-1.5-pro",
+        ]
         seen_models = set()
         last_err = None
 

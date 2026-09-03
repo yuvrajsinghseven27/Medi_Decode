@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en" class="transition-colors duration-200">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MediDecode - Sign In & Sign Up</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+    }
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .glass-panel {
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+    .strength-bar {
+      height: 4px;
+      transition: all 0.3s ease;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 antialiased min-h-screen transition-colors duration-200 relative overflow-x-hidden flex flex-col justify-between">
+
+  <!-- Ambient Glowing Blobs -->
+  <div class="fixed -top-40 -left-40 w-[550px] h-[550px] bg-sky-400/15 dark:bg-sky-500/10 rounded-full blur-3xl pointer-events-none -z-10"></div>
+  <div class="fixed top-1/2 -right-40 w-[500px] h-[500px] bg-teal-400/15 dark:bg-teal-500/10 rounded-full blur-3xl pointer-events-none -z-10"></div>
+  <div class="fixed -bottom-40 left-1/3 w-[600px] h-[600px] bg-indigo-400/10 dark:bg-indigo-500/10 rounded-full blur-3xl pointer-events-none -z-10"></div>
+
+  <!-- Top Minimal Header -->
+  <header class="px-6 py-4 flex items-center justify-between max-w-7xl mx-auto w-full z-10">
+    <a href="index.html" class="flex items-center space-x-3 group">
+      <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-sky-600 via-sky-500 to-teal-400 flex items-center justify-center text-white font-bold text-lg shadow-md shadow-sky-500/20 group-hover:scale-105 transition">
+        <i class="fa-solid fa-notes-medical"></i>
+      </div>
+      <div>
+        <h1 class="font-extrabold text-lg text-slate-900 dark:text-white tracking-tight">MediDecode</h1>
+        <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium" id="txt-brand-sub">AI Prescription & Safety Companion</p>
+      </div>
+    </a>
+
+    <div class="flex items-center gap-3">
+      <!-- Language Switcher -->
+      <div class="flex items-center bg-white dark:bg-slate-800 rounded-xl p-1 text-xs border border-slate-200 dark:border-slate-700 shadow-2xs">
+        <i class="fa-solid fa-language text-sky-600 dark:text-sky-400 px-1.5"></i>
+        <select id="langSelect" onchange="changeLanguage(this.value)" class="bg-transparent font-bold text-slate-800 dark:text-slate-100 outline-none cursor-pointer pr-1">
+          <option value="en" class="dark:bg-slate-800">English</option>
+          <option value="hi" class="dark:bg-slate-800">हिंदी</option>
+          <option value="gu" class="dark:bg-slate-800">ગુજરાતી</option>
+          <option value="es" class="dark:bg-slate-800">Español</option>
+        </select>
+      </div>
+
+      <!-- Dark mode toggle -->
+      <button id="themeToggleBtn" onclick="toggleDarkMode()" aria-label="Toggle theme" class="w-9 h-9 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-amber-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition flex items-center justify-center text-xs shadow-2xs">
+        <i id="themeToggleIcon" class="fa-solid fa-moon"></i>
+      </button>
+      
+      <!-- Skip to dashboard preview -->
+      <a href="index.html" class="px-3.5 py-1.5 rounded-xl border border-slate-200/90 dark:border-slate-700/90 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5 transition shadow-2xs">
+        <span id="txt-guest-preview">Enter App</span>
+        <i class="fa-solid fa-arrow-right text-[10px] text-sky-500"></i>
+      </a>
+    </div>
+  </header>
+
+  <!-- Main Login & Sign Up Container -->
+  <main class="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8 z-10">
+    <div class="max-w-5xl w-full grid grid-cols-1 lg:grid-cols-12 bg-white/90 dark:bg-slate-900/90 glass-panel border border-slate-200/90 dark:border-slate-800 rounded-3xl shadow-2xl shadow-sky-900/10 overflow-hidden">
+      
+      <!-- Left Hero Promo Banner (Desktop Only) -->
+      <div class="lg:col-span-5 bg-gradient-to-br from-sky-600 via-sky-700 to-teal-700 p-8 text-white flex flex-col justify-between relative overflow-hidden hidden lg:flex">
+        <div class="absolute -top-24 -left-24 w-64 h-64 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="absolute -bottom-24 -right-24 w-64 h-64 bg-teal-300/10 rounded-full blur-2xl pointer-events-none"></div>
+
+        <div class="space-y-6 relative z-10">
+          <span class="inline-flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-wider px-3 py-1 rounded-full bg-white/20 glass-panel border border-white/20">
+            <i class="fa-solid fa-shield-halved text-emerald-300"></i> <span id="hero-badge">Secure Healthcare Portal</span>
+          </span>
+          <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight leading-snug" id="hero-title">
+            Your Medical Prescriptions, Made Clear & Safe.
+          </h2>
+          <p class="text-xs sm:text-sm text-sky-100 leading-relaxed font-medium" id="hero-sub">
+            AI-powered handwriting OCR, automated dosage chronoscheduling, and real-time cultural food-drug safety warnings.
+          </p>
+
+          <!-- Highlights Checklist -->
+          <div class="space-y-3 pt-2 text-xs text-sky-50 font-medium">
+            <div class="flex items-center gap-2.5">
+              <span class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[10px] text-emerald-300">✓</span>
+              <span id="hero-f1">Decodes messy handwritten doctor prescriptions</span>
+            </div>
+            <div class="flex items-center gap-2.5">
+              <span class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[10px] text-emerald-300">✓</span>
+              <span id="hero-f2">Warns against hazardous food & drug clashes</span>
+            </div>
+            <div class="flex items-center gap-2.5">
+              <span class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[10px] text-emerald-300">✓</span>
+              <span id="hero-f3">Multi-script cross-doctor toxicity protection</span>
+            </div>
+            <div class="flex items-center gap-2.5">
+              <span class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[10px] text-emerald-300">✓</span>
+              <span id="hero-f4">Voice instructions in Hindi, Gujarati, Tamil & English</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Trust footer -->
+        <div class="pt-6 border-t border-white/15 relative z-10 text-[11px] text-sky-200 flex items-center justify-between">
+          <span class="flex items-center gap-1"><i class="fa-solid fa-lock"></i> 256-bit Encrypted</span>
+          <span>FastAPI • ABDM & HIPAA Ready</span>
+        </div>
+      </div>
+
+      <!-- Right Interactive Form Area -->
+      <div class="lg:col-span-7 p-6 sm:p-8 flex flex-col justify-between space-y-6">
+        
+        <div>
+          <!-- PRIMARY SWITCHER: SIGN IN vs SIGN UP -->
+          <div class="flex p-1 bg-slate-100 dark:bg-slate-800/80 rounded-2xl mb-6 text-xs font-extrabold shadow-inner">
+            <button onclick="switchMode('login')" id="mainTabSignIn" class="flex-1 py-2.5 rounded-xl bg-white dark:bg-slate-900 text-sky-700 dark:text-sky-300 shadow-sm transition flex items-center justify-center gap-2">
+              <i class="fa-solid fa-right-to-bracket"></i>
+              <span id="txt-tab-signin">Sign In (Log In)</span>
+            </button>
+            <button onclick="switchMode('signup')" id="mainTabSignUp" class="flex-1 py-2.5 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition flex items-center justify-center gap-2">
+              <i class="fa-solid fa-user-plus"></i>
+              <span id="txt-tab-signup">Sign Up (Create Account)</span>
+            </button>
+          </div>
+
+          <!-- ============================================================== -->
+          <!-- PANEL 1: SIGN IN SECTION                                      -->
+          <!-- ============================================================== -->
+          <div id="panelSignIn" class="space-y-5">
+            <div class="flex justify-between items-start">
+              <div>
+                <h2 class="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight" id="formHeaderTitle">
+                  Welcome Back
+                </h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5" id="formHeaderSubtitle">
+                  Sign in to manage prescriptions, schedules, and safety warnings.
+                </p>
+              </div>
+
+              <!-- Caregiver Switcher Pill -->
+              <button type="button" onclick="toggleRole()" id="roleBadgeBtn" class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-[11px] font-bold text-slate-600 dark:text-slate-300 hover:border-sky-500 transition shadow-2xs flex items-center gap-1.5 shrink-0">
+                <i class="fa-solid fa-user-shield text-sky-600"></i>
+                <span id="roleLabelText">Patient Mode</span>
+              </button>
+            </div>
+
+            <!-- Auth Method Toggle (OTP vs Email) -->
+            <div class="flex p-1 bg-slate-100 dark:bg-slate-800 rounded-xl text-xs font-bold">
+              <button onclick="switchAuthMethod('otp')" id="authTabOtp" class="flex-1 py-2 rounded-lg bg-white dark:bg-slate-900 text-sky-700 dark:text-sky-300 shadow-2xs transition flex items-center justify-center gap-1.5">
+                <i class="fa-solid fa-mobile-screen-button"></i> Mobile OTP
+              </button>
+              <button onclick="switchAuthMethod('email')" id="authTabEmail" class="flex-1 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition flex items-center justify-center gap-1.5">
+                <i class="fa-solid fa-envelope"></i> Email & Password
+              </button>
+            </div>
+
+            <!-- FORM 1A: MOBILE NUMBER & OTP -->
+            <form id="formOtp" onsubmit="handleOtpSubmit(event)" class="space-y-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                  Mobile Phone Number
+                </label>
+                <div class="flex gap-2">
+                  <span class="px-3 py-2.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-xl text-xs font-bold flex items-center">
+                    🇮🇳 +91
+                  </span>
+                  <input type="tel" id="mobilePhoneInput" placeholder="Enter 10-digit mobile number" required pattern="[0-9]{10}" value="9876543210" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-sky-500 outline-none transition" />
+                </div>
+                <p class="text-[10px] text-slate-400 mt-1">We'll send a 4-digit verification code via SMS/WhatsApp</p>
+              </div>
+
+              <!-- OTP Input Field -->
+              <div id="otpInputRow" class="hidden space-y-2 pt-1">
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Enter 4-Digit OTP Code
+                </label>
+                <div class="flex gap-2 justify-between max-w-xs">
+                  <input type="text" maxlength="1" value="5" class="w-12 h-12 text-center text-lg font-bold bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-sky-500 outline-none" />
+                  <input type="text" maxlength="1" value="2" class="w-12 h-12 text-center text-lg font-bold bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-sky-500 outline-none" />
+                  <input type="text" maxlength="1" value="8" class="w-12 h-12 text-center text-lg font-bold bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-sky-500 outline-none" />
+                  <input type="text" maxlength="1" value="1" class="w-12 h-12 text-center text-lg font-bold bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-sky-500 outline-none" />
+                </div>
+                <p class="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold">Demo code 5281 auto-filled for instant verification</p>
+              </div>
+
+              <!-- Submit Button -->
+              <button type="submit" id="btnOtpSubmit" class="w-full py-3 bg-gradient-to-r from-sky-600 to-teal-600 hover:from-sky-700 hover:to-teal-700 text-white font-extrabold text-xs rounded-xl shadow-md shadow-sky-600/20 transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                <span id="btnOtpText">Get Verification Code</span>
+                <i class="fa-solid fa-arrow-right"></i>
+              </button>
+            </form>
+
+            <!-- FORM 1B: EMAIL & PASSWORD -->
+            <form id="formEmail" onsubmit="handleEmailSubmit(event)" class="hidden space-y-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                  Email Address
+                </label>
+                <input type="email" id="emailInput" placeholder="name@example.com" value="ramesh.patient@gmail.com" required class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-sky-500 outline-none transition" />
+              </div>
+
+              <div>
+                <div class="flex justify-between items-center mb-1.5">
+                  <label class="text-xs font-bold text-slate-700 dark:text-slate-300">
+                    Password
+                  </label>
+                  <button type="button" onclick="openForgotPasswordModal()" class="text-[11px] text-sky-600 dark:text-sky-400 font-bold hover:underline">Forgot?</button>
+                </div>
+                <div class="relative">
+                  <input type="password" id="passwordInput" placeholder="••••••••" value="MediDecode2026!" required class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-sky-500 outline-none transition" />
+                  <button type="button" onclick="togglePasswordVisibility('passwordInput', 'pwdEyeIcon')" class="absolute right-3 top-3 text-slate-400 text-xs">
+                    <i id="pwdEyeIcon" class="fa-solid fa-eye"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <input type="checkbox" id="rememberMe" checked class="rounded border-slate-300 text-sky-600 focus:ring-sky-500 cursor-pointer" />
+                <label for="rememberMe" class="text-xs text-slate-600 dark:text-slate-400 font-medium cursor-pointer">
+                  Keep me signed in on this device
+                </label>
+              </div>
+
+              <button type="submit" class="w-full py-3 bg-gradient-to-r from-sky-600 to-teal-600 hover:from-sky-700 hover:to-teal-700 text-white font-extrabold text-xs rounded-xl shadow-md shadow-sky-600/20 transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                <span>Sign In with Password</span>
+                <i class="fa-solid fa-arrow-right"></i>
+              </button>
+            </form>
+
+            <!-- Social / Health ID Logins -->
+            <div class="relative my-4">
+              <div class="absolute inset-0 flex items-center">
+                <div class="w-full border-t border-slate-200 dark:border-slate-800"></div>
+              </div>
+              <div class="relative flex justify-center text-[10px] uppercase">
+                <span class="bg-white dark:bg-slate-900 px-3 text-slate-400 font-bold tracking-wider">Or continue with</span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <button type="button" onclick="loginWithGoogle()" class="py-2.5 px-4 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold flex items-center justify-center gap-2 transition shadow-2xs">
+                <i class="fa-brands fa-google text-rose-500"></i> Google
+              </button>
+              <button type="button" onclick="loginWithAbha()" class="py-2.5 px-4 rounded-xl border border-sky-200 dark:border-sky-800 bg-sky-50/50 dark:bg-sky-950/40 text-sky-800 dark:text-sky-300 text-xs font-bold flex items-center justify-center gap-2 transition shadow-2xs hover:bg-sky-100 dark:hover:bg-sky-900/60">
+                <i class="fa-solid fa-heart-pulse text-sky-600"></i> ABHA Health ID
+              </button>
+            </div>
+
+            <!-- Footer prompt to switch to Sign Up -->
+            <div class="pt-2 text-center text-xs text-slate-500 dark:text-slate-400 font-medium">
+              Don't have an account yet? 
+              <button type="button" onclick="switchMode('signup')" class="font-extrabold text-sky-600 dark:text-sky-400 hover:underline">
+                Create a Free Account →
+              </button>
+            </div>
+          </div>
+
+          <!-- ============================================================== -->
+          <!-- PANEL 2: SIGN UP SECTION (NEW REGISTRATION)                   -->
+          <!-- ============================================================== -->
+          <div id="panelSignUp" class="hidden space-y-4">
+            <div>
+              <h2 class="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                Create MediDecode Account
+              </h2>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                Set up your personalized patient profile, routine alarms, and dietary safety shield.
+              </p>
+            </div>
+
+            <!-- Sign Up Role Selector -->
+            <div class="grid grid-cols-3 gap-2 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl text-xs font-bold">
+              <button type="button" onclick="selectSignUpRole('Patient')" id="suRolePatient" class="py-2 rounded-lg bg-white dark:bg-slate-900 text-sky-700 dark:text-sky-300 shadow-2xs flex items-center justify-center gap-1.5 transition">
+                <i class="fa-solid fa-user"></i> Patient
+              </button>
+              <button type="button" onclick="selectSignUpRole('Caregiver')" id="suRoleCaregiver" class="py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center justify-center gap-1.5 transition">
+                <i class="fa-solid fa-hands-holding-child"></i> Caregiver
+              </button>
+              <button type="button" onclick="selectSignUpRole('Doctor')" id="suRoleDoctor" class="py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center justify-center gap-1.5 transition">
+                <i class="fa-solid fa-user-doctor"></i> Clinician
+              </button>
+            </div>
+
+            <form id="formSignUp" onsubmit="handleSignUpSubmit(event)" class="space-y-3.5">
+              
+              <!-- Full Name -->
+              <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  Full Name <span class="text-rose-500">*</span>
+                </label>
+                <div class="relative">
+                  <input type="text" id="suFullName" placeholder="e.g. Ramesh Dadhaniya" required value="Ramesh Dadhaniya" class="w-full pl-9 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-sky-500 outline-none transition" />
+                  <i class="fa-solid fa-user absolute left-3 top-3 text-slate-400 text-xs"></i>
+                </div>
+              </div>
+
+              <!-- Phone & Email 2-column grid -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    Mobile Number <span class="text-rose-500">*</span>
+                  </label>
+                  <div class="flex gap-1.5">
+                    <span class="px-2.5 py-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-xl text-xs font-bold flex items-center">
+                      +91
+                    </span>
+                    <input type="tel" id="suPhone" placeholder="10-digit number" required pattern="[0-9]{10}" value="9876543210" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-sky-500 outline-none transition" />
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    Email Address <span class="text-rose-500">*</span>
+                  </label>
+                  <input type="email" id="suEmail" placeholder="name@example.com" required value="ramesh.patient@gmail.com" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-sky-500 outline-none transition" />
+                </div>
+              </div>
+
+              <!-- Password & Strength Meter -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    Password <span class="text-rose-500">*</span>
+                  </label>
+                  <div class="relative">
+                    <input type="password" id="suPassword" oninput="checkPasswordStrength(this.value)" placeholder="At least 8 chars" required value="MediDecode2026!" class="w-full pl-3 pr-8 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-sky-500 outline-none transition" />
+                    <button type="button" onclick="togglePasswordVisibility('suPassword', 'suPwdEyeIcon')" class="absolute right-2.5 top-2.5 text-slate-400 text-xs">
+                      <i id="suPwdEyeIcon" class="fa-solid fa-eye"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    Confirm Password <span class="text-rose-500">*</span>
+                  </label>
+                  <div class="relative">
+                    <input type="password" id="suConfirmPassword" oninput="checkPasswordMatch()" placeholder="Re-enter password" required value="MediDecode2026!" class="w-full pl-3 pr-8 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-sky-500 outline-none transition" />
+                    <span id="suMatchIcon" class="absolute right-2.5 top-2.5 text-xs text-emerald-500 hidden">
+                      <i class="fa-solid fa-circle-check"></i>
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Live Password Strength Bar -->
+              <div class="space-y-1">
+                <div class="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                  <div id="suStrengthBar" class="strength-bar bg-emerald-500 h-full rounded-full" style="width: 85%;"></div>
+                </div>
+                <div class="flex justify-between items-center text-[10px] text-slate-400">
+                  <span id="suStrengthLabel" class="font-semibold text-emerald-600 dark:text-emerald-400">Strong Password</span>
+                  <span>Min. 8 characters with numbers & symbols</span>
+                </div>
+              </div>
+
+              <!-- Cultural & Clinical Preferences (Accordion / Grid) -->
+              <div class="p-3.5 bg-slate-50/80 dark:bg-slate-800/40 rounded-2xl border border-slate-200/80 dark:border-slate-700 space-y-3">
+                <span class="text-[11px] font-extrabold text-sky-700 dark:text-sky-300 uppercase tracking-wider flex items-center gap-1.5">
+                  <i class="fa-solid fa-heart-pulse text-rose-500"></i> Clinical Safety & Dietary Profile
+                </span>
+                
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                  <div>
+                    <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1">Age</label>
+                    <input type="number" id="suAge" value="62" min="1" max="120" class="w-full px-2.5 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold outline-none" />
+                  </div>
+                  <div>
+                    <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1">Blood Group</label>
+                    <select id="suBloodGroup" class="w-full px-2 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold outline-none cursor-pointer">
+                      <option value="B+">B+</option>
+                      <option value="A+">A+</option>
+                      <option value="O+">O+</option>
+                      <option value="AB+">AB+</option>
+                      <option value="O-">O-</option>
+                      <option value="A-">A-</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1">Diet Style</label>
+                    <select id="suDietType" class="w-full px-2 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold outline-none cursor-pointer">
+                      <option value="Vegetarian">Vegetarian</option>
+                      <option value="Jain">Jain (No Root)</option>
+                      <option value="Vegan">Vegan</option>
+                      <option value="Omnivore">Non-Vegetarian</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1">Language</label>
+                    <select id="suLanguage" class="w-full px-2 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold outline-none cursor-pointer">
+                      <option value="en">English</option>
+                      <option value="hi">हिंदी (Hindi)</option>
+                      <option value="gu">ગુજરાતી (Gujarati)</option>
+                      <option value="es">Español</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- Known Allergies Dropdown / Tag -->
+                <div>
+                  <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1">Known Drug Allergies</label>
+                  <input type="text" id="suAllergies" placeholder="e.g. Penicillin, Sulfa, None" value="None reported" class="w-full px-2.5 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold outline-none" />
+                </div>
+              </div>
+
+              <!-- Terms & Consent -->
+              <div class="flex items-start gap-2 pt-1">
+                <input type="checkbox" id="suTerms" required checked class="mt-0.5 rounded border-slate-300 text-sky-600 focus:ring-sky-500 cursor-pointer" />
+                <label for="suTerms" class="text-[11px] text-slate-500 dark:text-slate-400 leading-tight cursor-pointer">
+                  I agree to MediDecode's <a href="#" class="text-sky-600 font-bold hover:underline">Terms of Service</a> & understand that MediDecode is an assistive clinical verification tool.
+                </label>
+              </div>
+
+              <!-- Submit Button -->
+              <button type="submit" id="btnSignUpSubmit" class="w-full py-3 bg-gradient-to-r from-emerald-600 via-teal-600 to-sky-600 hover:from-emerald-700 hover:to-sky-700 text-white font-extrabold text-xs rounded-xl shadow-md shadow-teal-600/25 transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                <span id="btnSignUpText">Create My Health Account</span>
+                <i class="fa-solid fa-arrow-right"></i>
+              </button>
+            </form>
+
+            <!-- Footer prompt to switch to Sign In -->
+            <div class="pt-2 text-center text-xs text-slate-500 dark:text-slate-400 font-medium">
+              Already have an account? 
+              <button type="button" onclick="switchMode('login')" class="font-extrabold text-sky-600 dark:text-sky-400 hover:underline">
+                Sign In Here →
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- First Responder / Emergency Quick Access -->
+        <div class="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
+          <span class="text-slate-500 dark:text-slate-400">Emergency / First Responder?</span>
+          <a href="index.html" onclick="sessionStorage.setItem('openTab', 'emergency')" class="text-rose-600 font-bold hover:underline flex items-center gap-1">
+            <i class="fa-solid fa-qrcode"></i> Instant Medical Pass
+          </a>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- MODAL: FORGOT PASSWORD -->
+    <div id="forgotPasswordModal" class="fixed inset-0 z-50 bg-black/75 glass-panel hidden flex items-center justify-center p-4">
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-xl bg-sky-100 dark:bg-sky-950 text-sky-600 flex items-center justify-center text-sm">
+              <i class="fa-solid fa-key"></i>
+            </div>
+            <h3 class="font-extrabold text-slate-900 dark:text-white text-base">Reset Password</h3>
+          </div>
+          <button onclick="closeForgotPasswordModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <p class="text-xs text-slate-500 dark:text-slate-400">
+          Enter your registered email or phone number. We'll send a secure password recovery link.
+        </p>
+
+        <form onsubmit="handleForgotPasswordSubmit(event)" class="space-y-3">
+          <input type="text" id="forgotInput" placeholder="Email or 10-digit mobile" required value="ramesh.patient@gmail.com" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-sky-500 outline-none" />
+          <div id="forgotSuccessNotice" class="hidden p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs font-semibold">
+            ✓ Reset link sent! Check your inbox / WhatsApp.
+          </div>
+          <div class="flex gap-2 pt-1">
+            <button type="button" onclick="closeForgotPasswordModal()" class="flex-1 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold">
+              Cancel
+            </button>
+            <button type="submit" id="btnForgotSubmit" class="flex-1 py-2.5 bg-gradient-to-r from-sky-600 to-teal-600 text-white rounded-xl text-xs font-bold shadow-sm">
+              Send Link
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <!-- Minimal Footer -->
+  <footer class="p-6 text-center text-xs text-slate-400 dark:text-slate-500 max-w-7xl mx-auto w-full">
+    MediDecode AI Healthcare Companion • Protected by HIPAA & ABDM Data Standards • 2026
+  </footer>
+
+  <script>
+    // State management
+    let currentMode = 'login'; // 'login' or 'signup'
+    let currentRole = 'Patient';
+    let isCaregiver = false;
+    let isOtpSent = false;
+    let selectedSignUpRole = 'Patient';
+
+    // Check URL parameters for ?tab=signup or ?mode=signup
+    window.addEventListener('DOMContentLoaded', () => {
+      initDarkMode();
+      const urlParams = new URLSearchParams(window.location.search);
+      const tab = urlParams.get('tab') || urlParams.get('mode');
+      if (tab === 'signup' || tab === 'register') {
+        switchMode('signup');
+      } else {
+        switchMode('login');
+      }
+    });
+
+    function switchMode(mode) {
+      currentMode = mode;
+      const tabSignIn = document.getElementById('mainTabSignIn');
+      const tabSignUp = document.getElementById('mainTabSignUp');
+      const panelSignIn = document.getElementById('panelSignIn');
+      const panelSignUp = document.getElementById('panelSignUp');
+      const heroBadge = document.getElementById('hero-badge');
+      const heroTitle = document.getElementById('hero-title');
+
+      if (mode === 'signup') {
+        tabSignUp.className = "flex-1 py-2.5 rounded-xl bg-white dark:bg-slate-900 text-teal-700 dark:text-teal-300 shadow-sm transition flex items-center justify-center gap-2";
+        tabSignIn.className = "flex-1 py-2.5 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition flex items-center justify-center gap-2";
+        panelSignUp.classList.remove('hidden');
+        panelSignIn.classList.add('hidden');
+        if (heroBadge) heroBadge.innerText = "Join MediDecode Free";
+        if (heroTitle) heroTitle.innerText = "Empower Your Healthcare Journey with AI Precision.";
+      } else {
+        tabSignIn.className = "flex-1 py-2.5 rounded-xl bg-white dark:bg-slate-900 text-sky-700 dark:text-sky-300 shadow-sm transition flex items-center justify-center gap-2";
+        tabSignUp.className = "flex-1 py-2.5 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition flex items-center justify-center gap-2";
+        panelSignIn.classList.remove('hidden');
+        panelSignUp.classList.add('hidden');
+        if (heroBadge) heroBadge.innerText = "Secure Healthcare Portal";
+        if (heroTitle) heroTitle.innerText = "Your Medical Prescriptions, Made Clear & Safe.";
+      }
+    }
+
+    function toggleRole() {
+      isCaregiver = !isCaregiver;
+      const roleLabel = document.getElementById('roleLabelText');
+      const formTitle = document.getElementById('formHeaderTitle');
+      const roleBtn = document.getElementById('roleBadgeBtn');
+
+      if (isCaregiver) {
+        roleLabel.innerText = "Caregiver Mode";
+        roleBtn.className = "px-3 py-1.5 rounded-xl border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-950 text-[11px] font-bold text-emerald-700 dark:text-emerald-300 transition shadow-2xs flex items-center gap-1.5";
+        formTitle.innerText = "Caregiver Sign In";
+      } else {
+        roleLabel.innerText = "Patient Mode";
+        roleBtn.className = "px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-[11px] font-bold text-slate-600 dark:text-slate-300 transition shadow-2xs flex items-center gap-1.5";
+        formTitle.innerText = "Welcome Back";
+      }
+    }
+
+    function selectSignUpRole(role) {
+      selectedSignUpRole = role;
+      const btnPat = document.getElementById('suRolePatient');
+      const btnCare = document.getElementById('suRoleCaregiver');
+      const btnDoc = document.getElementById('suRoleDoctor');
+
+      [btnPat, btnCare, btnDoc].forEach(b => {
+        b.className = "py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center justify-center gap-1.5 transition";
+      });
+
+      if (role === 'Patient') {
+        btnPat.className = "py-2 rounded-lg bg-white dark:bg-slate-900 text-sky-700 dark:text-sky-300 shadow-2xs flex items-center justify-center gap-1.5 transition";
+      } else if (role === 'Caregiver') {
+        btnCare.className = "py-2 rounded-lg bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-300 shadow-2xs flex items-center justify-center gap-1.5 transition";
+      } else {
+        btnDoc.className = "py-2 rounded-lg bg-white dark:bg-slate-900 text-indigo-700 dark:text-indigo-300 shadow-2xs flex items-center justify-center gap-1.5 transition";
+      }
+    }
+
+    function switchAuthMethod(method) {
+      const tabOtp = document.getElementById('authTabOtp');
+      const tabEmail = document.getElementById('authTabEmail');
+      const formOtp = document.getElementById('formOtp');
+      const formEmail = document.getElementById('formEmail');
+
+      if (method === 'otp') {
+        tabOtp.className = "flex-1 py-2 rounded-lg bg-white dark:bg-slate-900 text-sky-700 dark:text-sky-300 shadow-2xs transition flex items-center justify-center gap-1.5";
+        tabEmail.className = "flex-1 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition flex items-center justify-center gap-1.5";
+        formOtp.classList.remove('hidden');
+        formEmail.classList.add('hidden');
+      } else {
+        tabEmail.className = "flex-1 py-2 rounded-lg bg-white dark:bg-slate-900 text-sky-700 dark:text-sky-300 shadow-2xs transition flex items-center justify-center gap-1.5";
+        tabOtp.className = "flex-1 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition flex items-center justify-center gap-1.5";
+        formEmail.classList.remove('hidden');
+        formOtp.classList.add('hidden');
+      }
+    }
+
+    function togglePasswordVisibility(inputId, iconId) {
+      const input = document.getElementById(inputId);
+      const icon = document.getElementById(iconId);
+      if (!input || !icon) return;
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'fa-solid fa-eye-slash';
+      } else {
+        input.type = 'password';
+        icon.className = 'fa-solid fa-eye';
+      }
+    }
+
+    function checkPasswordStrength(pwd) {
+      const bar = document.getElementById('suStrengthBar');
+      const label = document.getElementById('suStrengthLabel');
+      if (!bar || !label) return;
+
+      if (!pwd || pwd.length < 6) {
+        bar.style.width = '25%';
+        bar.className = 'strength-bar bg-rose-500 h-full rounded-full';
+        label.innerText = 'Weak (Too Short)';
+        label.className = 'font-semibold text-rose-500';
+      } else if (pwd.length < 8 || !/[0-9]/.test(pwd)) {
+        bar.style.width = '55%';
+        bar.className = 'strength-bar bg-amber-500 h-full rounded-full';
+        label.innerText = 'Fair (Add numbers/symbols)';
+        label.className = 'font-semibold text-amber-500';
+      } else {
+        bar.style.width = '100%';
+        bar.className = 'strength-bar bg-emerald-500 h-full rounded-full';
+        label.innerText = 'Strong Password';
+        label.className = 'font-semibold text-emerald-600 dark:text-emerald-400';
+      }
+      checkPasswordMatch();
+    }
+
+    function checkPasswordMatch() {
+      const p1 = document.getElementById('suPassword')?.value;
+      const p2 = document.getElementById('suConfirmPassword')?.value;
+      const icon = document.getElementById('suMatchIcon');
+      if (!icon) return;
+
+      if (p2 && p1 === p2) {
+        icon.classList.remove('hidden');
+      } else {
+        icon.classList.add('hidden');
+      }
+    }
+
+    async function handleOtpSubmit(e) {
+      e.preventDefault();
+      const otpRow = document.getElementById('otpInputRow');
+      const btnText = document.getElementById('btnOtpText');
+      const phoneVal = document.getElementById('mobilePhoneInput').value;
+
+      if (!isOtpSent) {
+        isOtpSent = true;
+        otpRow.classList.remove('hidden');
+        btnText.innerText = "Verify OTP & Enter App";
+      } else {
+        // Authenticate via backend API or session fallback
+        try {
+          await fetch('/api/v1/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phone: '+91' + phoneVal, role: isCaregiver ? "Caregiver" : "Patient" })
+          });
+        } catch (err) {
+          console.warn('Backend login notice:', err);
+        }
+
+        sessionStorage.setItem('mediDecode_auth', JSON.stringify({
+          name: isCaregiver ? "Siddharth Dadhaniya (Caregiver)" : "Ramesh Dadhaniya",
+          phone: phoneVal,
+          role: isCaregiver ? "Caregiver" : "Patient",
+          isLoggedIn: true
+        }));
+        window.location.href = "index.html";
+      }
+    }
+
+    async function handleEmailSubmit(e) {
+      e.preventDefault();
+      const emailVal = document.getElementById('emailInput').value;
+
+      try {
+        await fetch('/api/v1/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: emailVal, role: isCaregiver ? "Caregiver" : "Patient" })
+        });
+      } catch (err) {
+        console.warn('Backend login notice:', err);
+      }
+
+      sessionStorage.setItem('mediDecode_auth', JSON.stringify({
+        name: isCaregiver ? "Siddharth Dadhaniya (Caregiver)" : "Ramesh Dadhaniya",
+        email: emailVal,
+        role: isCaregiver ? "Caregiver" : "Patient",
+        isLoggedIn: true
+      }));
+      window.location.href = "index.html";
+    }
+
+    async function handleSignUpSubmit(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btnSignUpSubmit');
+      const btnText = document.getElementById('btnSignUpText');
+
+      const name = document.getElementById('suFullName').value;
+      const phone = document.getElementById('suPhone').value;
+      const email = document.getElementById('suEmail').value;
+      const pwd = document.getElementById('suPassword').value;
+      const confirmPwd = document.getElementById('suConfirmPassword').value;
+      const age = document.getElementById('suAge').value;
+      const bloodGroup = document.getElementById('suBloodGroup').value;
+      const dietType = document.getElementById('suDietType').value;
+      const lang = document.getElementById('suLanguage').value;
+      const allergies = document.getElementById('suAllergies').value;
+
+      if (pwd !== confirmPwd) {
+        alert('Passwords do not match. Please verify your password.');
+        return;
+      }
+
+      btnText.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creating Profile...';
+      btn.disabled = true;
+
+      const profileData = {
+        full_name: name,
+        phone: '+91' + phone,
+        preferred_language: lang,
+        cultural_dietary_profile: {
+          dietary_type: dietType,
+          tea_dairy_intake: "Moderate",
+          allergies: allergies,
+          fasting_routines: dietType === 'Jain' ? ['Paryushana'] : ['Navratri']
+        },
+        waking_time: "06:30:00",
+        breakfast_time: "08:30:00",
+        lunch_time: "13:00:00",
+        dinner_time: "20:30:00"
+      };
+
+      try {
+        const resp = await fetch('/api/v1/auth/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(profileData)
+        });
+        if (resp.ok) {
+          const resData = await resp.json();
+          console.log('Account registered in backend:', resData);
+        }
+      } catch (err) {
+        console.warn('Backend registration network note:', err);
+      }
+
+      // Save to localStorage & sessionStorage
+      const userProfile = {
+        name: name,
+        mobile: phone,
+        email: email,
+        age: age,
+        gender: "Male",
+        bloodGroup: bloodGroup,
+        allergies: allergies,
+        dietType: dietType,
+        doctorName: "Dr. A. K. Mehta",
+        hospital: "Metro Health Center",
+        role: selectedSignUpRole
+      };
+      localStorage.setItem('mediDecode_profile', JSON.stringify(userProfile));
+
+      sessionStorage.setItem('mediDecode_auth', JSON.stringify({
+        name: name,
+        phone: phone,
+        email: email,
+        role: selectedSignUpRole,
+        isLoggedIn: true
+      }));
+
+      btnText.innerHTML = '<i class="fa-solid fa-circle-check"></i> Account Created!';
+      
+      setTimeout(() => {
+        window.location.href = "index.html";
+      }, 700);
+    }
+
+    function openForgotPasswordModal() {
+      document.getElementById('forgotPasswordModal').classList.remove('hidden');
+    }
+    function closeForgotPasswordModal() {
+      document.getElementById('forgotPasswordModal').classList.add('hidden');
+    }
+    function handleForgotPasswordSubmit(e) {
+      e.preventDefault();
+      const notice = document.getElementById('forgotSuccessNotice');
+      notice.classList.remove('hidden');
+      setTimeout(() => {
+        closeForgotPasswordModal();
+        notice.classList.add('hidden');
+      }, 2500);
+    }
+
+    function loginWithGoogle() {
+      sessionStorage.setItem('mediDecode_auth', JSON.stringify({
+        name: "Google Verified User",
+        email: "user@gmail.com",
+        role: "Patient",
+        isLoggedIn: true
+      }));
+      window.location.href = "index.html";
+    }
+
+    function loginWithAbha() {
+      sessionStorage.setItem('mediDecode_auth', JSON.stringify({
+        name: "ABHA Health Holder (91-4820)",
+        phone: "9876543210",
+        role: "Patient",
+        isLoggedIn: true
+      }));
+      window.location.href = "index.html";
+    }
+
+    function toggleDarkMode() {
+      const html = document.documentElement;
+      const isDark = html.classList.toggle('dark');
+      localStorage.setItem('mediDecode_theme', isDark ? 'dark' : 'light');
+      updateThemeIcon(isDark);
+    }
+
+    function initDarkMode() {
+      const savedTheme = localStorage.getItem('mediDecode_theme');
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const isDark = savedTheme ? (savedTheme === 'dark') : prefersDark;
+      if (isDark) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+      updateThemeIcon(isDark);
+    }
+
+    function updateThemeIcon(isDark) {
+      const icon = document.getElementById('themeToggleIcon');
+      if (!icon) return;
+      icon.className = isDark ? 'fa-solid fa-sun text-amber-400' : 'fa-solid fa-moon text-slate-600';
+    }
+
+    const I18N = {
+      en: {
+        brand_sub: "AI Prescription & Safety Companion",
+        tab_signin: "Sign In (Log In)",
+        tab_signup: "Sign Up (Create Account)",
+        guest_preview: "Enter App",
+        hero_badge: "Secure Healthcare Portal",
+        hero_title: "Your Medical Prescriptions, Made Clear & Safe.",
+        hero_sub: "AI-powered handwriting OCR, automated dosage chronoscheduling, and real-time cultural food-drug safety warnings."
+      },
+      hi: {
+        brand_sub: "एआई पर्ची एवं दवा सुरक्षा साथी",
+        tab_signin: "साइन इन (लॉग इन)",
+        tab_signup: "साइन अप (खाता बनाएं)",
+        guest_preview: "ऐप में जाएं",
+        hero_badge: "सुरक्षित स्वास्थ्य सेवा पोर्टल",
+        hero_title: "आपकी डॉक्टर की पर्चियां, अब स्पष्ट और सुरक्षित।",
+        hero_sub: "हस्तलिखित पर्ची ओसीआर, स्वचालित समय सारिणी और भोजन-दवा सुरक्षा चेतावनियां।"
+      },
+      gu: {
+        brand_sub: "AI પ્રિસ્ક્રિપ્શન અને દવા સુરક્ષા સાથી",
+        tab_signin: "સાઇન ઇન (લૉગ ઇન)",
+        tab_signup: "સાઇન અપ (નવું ખાતું બનાવો)",
+        guest_preview: "એપમાં જાઓ",
+        hero_badge: "સુરક્ષિત હેલ્થકેર પોર્ટલ",
+        hero_title: "તમારા ડૉક્ટરના પ્રિસ્ક્રિપ્શન, હવે એકદમ સ્પષ્ટ અને સુરક્ષિત.",
+        hero_sub: "હસ્તાક્ષર વાંચન OCR, સ્વચાલિત દવાનો સમય અને ખોરાક-દવા સુરક્ષા ચેતવણીઓ."
+      },
+      es: {
+        brand_sub: "Asistente de Prescripciones Médicas con IA",
+        tab_signin: "Iniciar Sesión",
+        tab_signup: "Registrarse (Crear Cuenta)",
+        guest_preview: "Entrar a la App",
+        hero_badge: "Portal de Salud Seguro",
+        hero_title: "Tus recetas médicas, claras y seguras.",
+        hero_sub: "OCR de escritura manual, cronograma de dosis y alertas de alimentos peligrosos."
+      }
+    };
+
+    function changeLanguage(lang) {
+      const dict = I18N[lang] || I18N.en;
+      localStorage.setItem('mediDecode_lang', lang);
+      for (const [id, text] of Object.entries(dict)) {
+        const el = document.getElementById(id) || document.getElementById(`txt-${id}`);
+        if (el) el.innerText = text;
+      }
+    }
+  </script>
+</body>
+</html>

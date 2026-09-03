@@ -1,6 +1,13 @@
 import axios from 'axios';
 
-export const API_BASE_URL = 'http://localhost:8000/api/v1';
+const getBaseUrl = () => {
+  if (typeof window !== 'undefined' && window.location.port === '8000') {
+    return '/api/v1';
+  }
+  return 'http://localhost:8000/api/v1';
+};
+
+export const API_BASE_URL = getBaseUrl();
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -118,7 +125,8 @@ export interface DoseActionResult {
 // API Functions
 export const api = {
   async checkHealth(): Promise<{ status: string; app: string; version: string }> {
-    const res = await axios.get('http://localhost:8000/healthz');
+    const healthUrl = typeof window !== 'undefined' && window.location.port === '8000' ? '/healthz' : 'http://localhost:8000/healthz';
+    const res = await axios.get(healthUrl);
     return res.data;
   },
 
