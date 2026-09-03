@@ -2,6 +2,7 @@ from typing import List, Union
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 import json
+import os
 
 
 class Settings(BaseSettings):
@@ -21,8 +22,11 @@ class Settings(BaseSettings):
     # AI Service Settings
     GEMINI_API_KEY: str = ""
 
-    # Database Configuration (PostgreSQL with asyncpg)
-    DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/medidecode"
+    # Database Configuration (Defaults to local async SQLite, configurable to PostgreSQL via .env)
+    DATABASE_URL: str = os.getenv(
+        "DATABASE_URL",
+        "sqlite+aiosqlite:///./medidecode.db",
+    )
 
     @field_validator("BACKEND_CORS_ORIGINS", mode="before")
     @classmethod
