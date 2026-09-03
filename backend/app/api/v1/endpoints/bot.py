@@ -96,7 +96,7 @@ async def chat_with_medibot(payload: BotChatRequest):
             conv_lines.append(f"\nPatient: {user_msg}\nMediBot:")
             full_prompt = "\n".join(conv_lines)
 
-            for model_candidate in ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash", "gemini-flash-latest"]:
+            for model_candidate in ["gemini-3.6-flash", "gemini-3.5-flash", "gemini-flash-latest", "gemini-2.5-flash"]:
                 try:
                     resp = client.models.generate_content(
                         model=model_candidate,

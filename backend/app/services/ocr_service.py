@@ -47,14 +47,15 @@ class OCRService:
 
     @property
     def client(self) -> genai.Client:
+        if self._client is not None:
+            return self._client
         key = self.current_api_key
         if not key:
             raise ValueError(
                 "GEMINI_API_KEY is not configured. Please set GEMINI_API_KEY in backend/.env or via the web portal."
             )
-        if self._client is None or getattr(self, "_active_key", None) != key:
-            self._client = genai.Client(api_key=key)
-            self._active_key = key
+        self._client = genai.Client(api_key=key)
+        self._active_key = key
         return self._client
 
     async def parse_prescription_document(
@@ -92,12 +93,12 @@ class OCRService:
         )
 
         models_to_try = [
+            "gemini-3.6-flash",
+            "gemini-3.5-flash",
+            "gemini-flash-latest",
             "gemini-2.5-flash",
             "gemini-2.0-flash",
             "gemini-1.5-flash",
-            "gemini-flash-latest",
-            "gemini-2.5-pro",
-            "gemini-1.5-pro",
         ]
         seen_models = set()
         last_err = None

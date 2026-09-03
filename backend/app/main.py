@@ -52,15 +52,26 @@ user_login_html = workspace_root / "login.html"
 user_signup_html = workspace_root / "signup.html"
 frontend_dist = workspace_root / "frontend" / "dist"
 
+from fastapi import Request
+from fastapi.responses import JSONResponse
+
 # 1. Primary User Frontend Routes (index.html, login.html & signup.html)
-@app.get("/", tags=["User Frontend"], response_class=FileResponse)
-async def serve_user_root():
-    """Serves the user's primary customized dashboard (index.html)."""
-    if user_index_html.exists():
-        return FileResponse(user_index_html)
-    elif frontend_dist.exists() and (frontend_dist / "index.html").exists():
-        return FileResponse(frontend_dist / "index.html")
-    return {"message": f"Welcome to {settings.PROJECT_NAME}"}
+@app.get("/", tags=["User Frontend"])
+async def serve_user_root(request: Request):
+    """Serves the user's primary customized dashboard (index.html) for browsers, or JSON metadata for API clients."""
+    accept = request.headers.get("accept", "")
+    if "text/html" in accept:
+        if user_index_html.exists():
+            return FileResponse(user_index_html)
+        elif frontend_dist.exists() and (frontend_dist / "index.html").exists():
+            return FileResponse(frontend_dist / "index.html")
+
+    return JSONResponse({
+        "message": f"Welcome to {settings.PROJECT_NAME}",
+        "version": settings.VERSION,
+        "docs": f"{settings.API_V1_STR}/docs",
+        "health": "/healthz",
+    })
 
 
 @app.get("/index.html", tags=["User Frontend"], response_class=FileResponse)

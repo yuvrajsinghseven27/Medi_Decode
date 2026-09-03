@@ -670,7 +670,7 @@ class SafetyService:
                     f"Patient's Question:\n\"{question}\"\n\n"
                     f"Please provide a thorough, structured, and clinically accurate response."
                 )
-                for m_id in ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash", "gemini-flash-latest"]:
+                for m_id in ["gemini-3.6-flash", "gemini-3.5-flash", "gemini-flash-latest", "gemini-2.5-flash"]:
                     try:
                         resp = client.models.generate_content(
                             model=m_id,
