@@ -2,8 +2,11 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-009688.svg?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
-[![Next.js](https://img.shields.io/badge/Next.js-14+-000000.svg?logo=next.js&logoColor=white)](https://nextjs.org/)
-[![AI-Powered](https://img.shields.io/badge/AI-Gemini%20Multimodal-4285F4.svg?logo=google&logoColor=white)](https://ai.google.dev/)
+[![AI-Powered](https://img.shields.io/badge/AI-Gemini%202.5%20Flash-4285F4.svg?logo=google&logoColor=white)](https://ai.google.dev/)
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/dhyeydadhaniya02-del/medicine)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/dhyeydadhaniya02-del/medicine)
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new/template?template=https://github.com/dhyeydadhaniya02-del/medicine)
 
 > **MediDecode** transforms illegible handwritten prescriptions and complex medical discharge documents into crystal-clear, structured daily schedules, provides plain-language explanations in regional languages, and alerts patients to dangerous food–drug interactions.
 
@@ -133,6 +136,24 @@ DATABASE_URL="postgresql://user:password@localhost:5432/medidecode"
 TWILIO_ACCOUNT_SID=""
 TWILIO_AUTH_TOKEN=""
 ```
+
+---
+
+## 🚀 One-Click Deployment Links
+
+You can deploy MediDecode directly to the cloud for free using any of these deployable links:
+
+### 1. Render Blueprint (Full Stack Backend + DB + Frontend)
+👉 **[Click to Deploy on Render](https://render.com/deploy?repo=https://github.com/dhyeydadhaniya02-del/medicine)**  
+Automatically deploys the PostgreSQL database, FastAPI unified backend with Docker, and static frontend with zero manual configuration.
+
+### 2. Vercel (Frontend Static SPA)
+👉 **[Click to Deploy on Vercel](https://vercel.com/new/clone?repository-url=https://github.com/dhyeydadhaniya02-del/medicine)**  
+Instantly builds and deploys the frontend dashboard with global CDN hosting.
+
+### 3. Railway (Full Stack Template)
+👉 **[Click to Deploy on Railway](https://railway.app/new/template?template=https://github.com/dhyeydadhaniya02-del/medicine)**  
+One-click cloud provisioning with automatic health checks and database provisioning.
 
 ---
 
