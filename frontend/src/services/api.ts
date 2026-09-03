@@ -115,10 +115,69 @@ export interface DoseActionResult {
   low_stock_warning?: string;
 }
 
+export interface UserProfile {
+  id: string;
+  full_name: string;
+  phone: string;
+  preferred_language: string;
+  cultural_dietary_profile?: {
+    dietary_type?: string;
+    tea_dairy_intake?: string;
+    fasting_routines?: string[];
+    notes?: string;
+  };
+  waking_time?: string;
+  breakfast_time?: string;
+  lunch_time?: string;
+  dinner_time?: string;
+}
+
+export interface PrescriptionItemSummary {
+  id: string;
+  brand_name?: string;
+  generic_molecule?: string;
+  form?: string;
+  strength?: string;
+  frequency?: string;
+  timing_relation?: string;
+  duration_days?: number;
+  remaining_pills?: number;
+  is_active?: boolean;
+}
+
+export interface PrescriptionRecord {
+  id: string;
+  user_id: string;
+  raw_image_url: string;
+  doctor_name?: string;
+  doctor_specialty?: string;
+  date_prescribed?: string;
+  status: string;
+  created_at: string;
+  medication_items: PrescriptionItemSummary[];
+}
+
 // API Functions
 export const api = {
   async checkHealth(): Promise<{ status: string; app: string; version: string }> {
-    const res = await axios.get('http://localhost:8000/healthz');
+    try {
+      const res = await axios.get('/healthz');
+      return res.data;
+    } catch {
+      const res = await axios.get('http://localhost:8000/healthz');
+      return res.data;
+    }
+  },
+
+  async getDefaultUser(): Promise<UserProfile> {
+    const res = await apiClient.get<UserProfile>('/users/default');
+    return res.data;
+  },
+
+  async getPrescriptions(userId?: string): Promise<PrescriptionRecord[]> {
+    const params: Record<string, string> = {};
+    if (userId) params.user_id = userId;
+    const res = await apiClient.get<PrescriptionRecord[]>('/prescriptions', { params });
     return res.data;
   },
 

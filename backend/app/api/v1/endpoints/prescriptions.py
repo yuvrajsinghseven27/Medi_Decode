@@ -1,13 +1,15 @@
 import os
 import uuid
 import logging
-from typing import Optional
+from typing import Optional, List
+from datetime import date
 from uuid import UUID
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
 from app.core.database import get_db
 from app.models import (
@@ -17,9 +19,11 @@ from app.models import (
     PrescriptionStatus,
 )
 from app.schemas.ocr import PrescriptionUploadResponse, PrescriptionExtractionResult
+from app.schemas.prescription import PrescriptionRead
 from app.schemas.safety import ReconciliationResponse
 from app.services.ocr_service import ocr_service
 from app.services.safety_service import safety_service
+from app.services.scheduler_service import scheduler_service
 
 logger = logging.getLogger(__name__)
 
@@ -170,6 +174,25 @@ async def upload_prescription(
     )
 
 
+@router.get(
+    "/",
+    response_model=List[PrescriptionRead],
+    summary="List prescriptions",
+    description="Returns all prescriptions, optionally filtered by user_id, with their medication items.",
+)
+async def list_prescriptions(
+    user_id: Optional[UUID] = Query(None, description="Filter by user ID"),
+    session: AsyncSession = Depends(get_db),
+):
+    stmt = select(Prescription).options(selectinload(Prescription.medication_items))
+    if user_id:
+        stmt = stmt.where(Prescription.user_id == user_id)
+    stmt = stmt.order_by(Prescription.date_prescribed.desc().nullslast(), Prescription.created_at.desc())
+
+    res = await session.execute(stmt)
+    return res.scalars().all()
+
+
 @router.post(
     "/{id}/verify-and-reconcile",
     response_model=ReconciliationResponse,
@@ -182,10 +205,23 @@ async def verify_and_reconcile_prescription(
     session: AsyncSession = Depends(get_db),
 ):
     try:
-        return await safety_service.reconcile_prescription(
+        reconciliation = await safety_service.reconcile_prescription(
             prescription_id=id,
             session=session,
         )
+
+        # Automatically forward-populate schedule items across the prescribed course
+        try:
+            await scheduler_service.generate_schedule_for_prescription(
+                prescription_id=id,
+                session=session,
+                start_date=date.today(),
+            )
+            logger.info(f"Automatically generated schedule items for prescription {id}")
+        except Exception as sched_err:
+            logger.warning(f"Auto-schedule generation on reconciliation had non-fatal warning: {sched_err}")
+
+        return reconciliation
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -197,3 +233,4 @@ async def verify_and_reconcile_prescription(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Reconciliation failed: {str(e)}",
         )
+
