@@ -23,6 +23,7 @@ import type {
 } from '../services/api';
 
 interface UploadVerificationScreenProps {
+  userId?: string;
   onReconciliationComplete: (response: ReconciliationResponse) => void;
 }
 
@@ -66,6 +67,7 @@ const SAMPLE_OCR_RESULT: PrescriptionExtractionResult = {
 };
 
 export const UploadVerificationScreen: React.FC<UploadVerificationScreenProps> = ({
+  userId,
   onReconciliationComplete,
 }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -112,7 +114,7 @@ export const UploadVerificationScreen: React.FC<UploadVerificationScreenProps> =
     if (!selectedFile) return;
     setIsUploading(true);
     try {
-      const response = await api.uploadPrescription(selectedFile);
+      const response = await api.uploadPrescription(selectedFile, userId);
       setPrescriptionId(response.prescription_id);
       setExtraction(response.extraction);
     } catch (err) {

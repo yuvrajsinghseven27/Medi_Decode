@@ -14,6 +14,8 @@ import type {
   FastingAdjustment,
   ReconciliationResponse,
   DailyScheduleView,
+  UserProfile,
+  PrescriptionRecord,
 } from './services/api';
 import {
   UploadCloud,
@@ -159,6 +161,36 @@ const INITIAL_SCHEDULE: DailyScheduleView = {
   adherence_percentage: 0,
 };
 
+function mapBackendPrescriptions(records: PrescriptionRecord[]): Prescription[] {
+  const list: Prescription[] = [];
+  for (const rx of records) {
+    for (const item of rx.medication_items || []) {
+      list.push({
+        id: item.id || rx.id,
+        brandName: item.brand_name || item.generic_molecule || 'Prescribed Med',
+        genericName: item.generic_molecule || item.brand_name || 'Generic Molecule',
+        dosage: item.strength || 'Standard Dose',
+        form: item.form === 'Capsule' ? 'Capsule' : item.form === 'Liquid' ? 'Liquid' : item.form === 'Inhaler' ? 'Inhaler' : 'Tablet',
+        doctorName: rx.doctor_name || 'Attending Physician',
+        clinic: rx.doctor_specialty ? `${rx.doctor_specialty} Care` : 'Metro Health Cardiology',
+        prescribedDate: rx.date_prescribed || rx.created_at?.slice(0, 10) || 'Recent',
+        frequency: item.frequency || 'OD',
+        timingInstructions:
+          item.timing_relation === 'AC'
+            ? 'Take 30 mins before food on an empty stomach'
+            : item.timing_relation === 'PC'
+            ? 'Take 30 mins after food'
+            : 'Take with food',
+        refillsRemaining: item.remaining_pills !== undefined ? Math.floor(item.remaining_pills / 2) : 5,
+        status: item.remaining_pills !== undefined && item.remaining_pills <= 3 ? 'refill_needed' : 'active',
+        confidenceScore: 0.95,
+        warnings: item.remaining_pills !== undefined && item.remaining_pills <= 3 ? ['Refill Due: Low pill stock remaining'] : [],
+      });
+    }
+  }
+  return list;
+}
+
 export function App() {
   const [activeTab, setActiveTab] = useState<NavTab>(() => {
     try {
@@ -185,8 +217,9 @@ export function App() {
     return 'en';
   });
 
-  // Clinical & Safety State
-  const [prescriptions] = useState<Prescription[]>(mockPrescriptions);
+  // Clinical & Patient State
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
+  const [prescriptions, setPrescriptions] = useState<Prescription[]>(mockPrescriptions);
   const [alerts, setAlerts] = useState<SafetyAlertRead[]>([
     {
       id: 'init_alert_01',
@@ -228,22 +261,66 @@ export function App() {
   // Schedule State
   const [scheduleData, setScheduleData] = useState<DailyScheduleView>(INITIAL_SCHEDULE);
 
-  // Health check polling on mount
+  const loadLiveBackendData = useCallback(async (userId: string) => {
+    try {
+      const [schedRes, alertsRes, rxRes] = await Promise.allSettled([
+        api.getTodaySchedule(userId),
+        api.getSafetyAdvisories(userId),
+        api.getPrescriptions(userId),
+      ]);
+
+      if (schedRes.status === 'fulfilled' && schedRes.value && schedRes.value.total_doses > 0) {
+        setScheduleData(schedRes.value);
+      }
+      if (alertsRes.status === 'fulfilled' && alertsRes.value && alertsRes.value.length > 0) {
+        setAlerts(alertsRes.value);
+      }
+      if (rxRes.status === 'fulfilled' && rxRes.value && rxRes.value.length > 0) {
+        const mapped = mapBackendPrescriptions(rxRes.value);
+        if (mapped.length > 0) {
+          setPrescriptions(mapped);
+        }
+      }
+    } catch (err) {
+      console.warn('Non-fatal error loading live backend data:', err);
+    }
+  }, []);
+
+  // Sync with live backend on mount & periodically
   useEffect(() => {
-    const checkHealth = async () => {
+    let isMounted = true;
+
+    const syncWithBackend = async () => {
       try {
         const data = await api.checkHealth();
+        if (!isMounted) return;
         setBackendStatus('connected');
         if (data.version) setBackendVersion(data.version);
+
+        try {
+          const user = await api.getDefaultUser();
+          if (!isMounted) return;
+          setCurrentUser(user);
+          if (user.preferred_language && !window.location.search.includes('lang=')) {
+            setPreferredLanguage(user.preferred_language);
+          }
+          await loadLiveBackendData(user.id);
+        } catch (uErr) {
+          console.warn('Unable to sync patient profile:', uErr);
+        }
       } catch {
+        if (!isMounted) return;
         setBackendStatus('offline');
       }
     };
 
-    checkHealth();
-    const interval = setInterval(checkHealth, 10000);
-    return () => clearInterval(interval);
-  }, []);
+    syncWithBackend();
+    const interval = setInterval(syncWithBackend, 15000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, [loadLiveBackendData]);
 
   const handleReconciliationComplete = (response: ReconciliationResponse) => {
     if (response.alerts && response.alerts.length > 0) {
@@ -258,41 +335,48 @@ export function App() {
     if (response.doctor_query_summary) {
       setDoctorQuerySummary(response.doctor_query_summary);
     }
+
+    if (currentUser?.id) {
+      loadLiveBackendData(currentUser.id);
+    }
+
     // Route to safety panel to review results
     setActiveTab('safety');
   };
 
   const handleDoseUpdated = useCallback(() => {
-    // Recompute schedule adherence locally
-    setScheduleData((prev) => {
-      let taken = 0;
-      let total = 0;
-
-      const updateSlot = (items: typeof prev.morning) =>
-        items.map((item) => {
-          total += 1;
-          if (item.status === 'TAKEN') taken += 1;
-          return item;
+    if (currentUser?.id) {
+      api.getTodaySchedule(currentUser.id)
+        .then((fresh) => {
+          if (fresh && fresh.total_doses > 0) {
+            setScheduleData(fresh);
+          }
+        })
+        .catch(() => {
+          // Fallback local update
+          setScheduleData((prev) => {
+            let taken = 0;
+            let total = 0;
+            const updateSlot = (items: typeof prev.morning) =>
+              items.map((item) => {
+                total += 1;
+                if (item.status === 'TAKEN') taken += 1;
+                return item;
+              });
+            return {
+              ...prev,
+              morning: updateSlot(prev.morning),
+              afternoon: updateSlot(prev.afternoon),
+              evening: updateSlot(prev.evening),
+              bedtime: updateSlot(prev.bedtime),
+              total_doses: total,
+              taken_doses: taken,
+              adherence_percentage: total > 0 ? Math.round((taken / total) * 100) : 0,
+            };
+          });
         });
-
-      const morning = updateSlot(prev.morning);
-      const afternoon = updateSlot(prev.afternoon);
-      const evening = updateSlot(prev.evening);
-      const bedtime = updateSlot(prev.bedtime);
-
-      const adherence = total > 0 ? Math.round((taken / total) * 100) : 0;
-      return {
-        ...prev,
-        morning,
-        afternoon,
-        evening,
-        bedtime,
-        total_doses: total,
-        taken_doses: taken,
-        adherence_percentage: adherence,
-      };
-    });
-  }, []);
+    }
+  }, [currentUser]);
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
@@ -300,6 +384,8 @@ export function App() {
       <TopBar
         backendStatus={backendStatus}
         backendVersion={backendVersion}
+        patientName={currentUser?.full_name || 'Ramesh Patel'}
+        patientId={currentUser ? `#MED-${currentUser.id.slice(0, 4).toUpperCase()}` : '#MED-4092'}
         onUploadClick={() => setActiveTab('prescriptions')}
       />
 
@@ -453,7 +539,10 @@ export function App() {
 
           {/* TAB 3: PRESCRIPTION INGESTION & SPLIT SCREEN VERIFICATION */}
           {activeTab === 'prescriptions' && (
-            <UploadVerificationScreen onReconciliationComplete={handleReconciliationComplete} />
+            <UploadVerificationScreen
+              userId={currentUser?.id}
+              onReconciliationComplete={handleReconciliationComplete}
+            />
           )}
 
           {/* TAB 4: CROSS-DOCTOR SAFETY & DIETARY DDIS */}

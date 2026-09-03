@@ -4,12 +4,16 @@ import { PhoneCall, Bell, Activity, UploadCloud } from 'lucide-react';
 interface TopBarProps {
   backendStatus: 'connected' | 'checking' | 'offline';
   backendVersion?: string;
+  patientName?: string;
+  patientId?: string;
   onUploadClick: () => void;
 }
 
 export const TopBar: React.FC<TopBarProps> = ({
   backendStatus,
   backendVersion = '0.1.0',
+  patientName = 'Ramesh Patel',
+  patientId = '#MED-4092',
   onUploadClick,
 }) => {
   return (
@@ -83,11 +87,11 @@ export const TopBar: React.FC<TopBarProps> = ({
         {/* User / Patient Profile */}
         <div className="flex items-center gap-2.5 border-l border-slate-800 pl-2 sm:pl-4">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-800 text-xs font-semibold text-teal-300 ring-1 ring-slate-700">
-            JD
+            {patientName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'RP'}
           </div>
           <div className="hidden text-left lg:block">
-            <p className="text-xs font-medium text-slate-200">John Doe</p>
-            <p className="text-[10px] text-slate-400">ID: #MED-4092</p>
+            <p className="text-xs font-medium text-slate-200">{patientName}</p>
+            <p className="text-[10px] text-slate-400">ID: {patientId}</p>
           </div>
         </div>
       </div>
