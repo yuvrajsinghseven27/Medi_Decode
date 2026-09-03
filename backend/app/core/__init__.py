@@ -1,0 +1,1 @@
+"""MediDecode core package."""

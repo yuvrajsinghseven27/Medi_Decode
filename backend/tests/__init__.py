@@ -1,0 +1,1 @@
+"""MediDecode test suite."""
