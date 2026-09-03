@@ -25,7 +25,10 @@ from app.schemas.schedule import (
     ScheduleItemCreate,
     ScheduleItemUpdate,
     ScheduleItemRead,
-    DoseActionRequest,
+    DoseActionPayload,
+    DoseItemDetail,
+    DailyScheduleView,
+    DoseActionResult,
 )
 from app.schemas.safety import (
     SafetyAlertBase,
@@ -62,7 +65,10 @@ __all__ = [
     "ScheduleItemCreate",
     "ScheduleItemUpdate",
     "ScheduleItemRead",
-    "DoseActionRequest",
+    "DoseActionPayload",
+    "DoseItemDetail",
+    "DailyScheduleView",
+    "DoseActionResult",
     "SafetyAlertBase",
     "SafetyAlertCreate",
     "SafetyAlertRead",
