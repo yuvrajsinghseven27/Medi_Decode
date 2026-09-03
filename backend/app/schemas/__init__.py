@@ -31,6 +31,9 @@ from app.schemas.safety import (
     SafetyAlertBase,
     SafetyAlertCreate,
     SafetyAlertRead,
+    CumulativeToxicityAlert,
+    FastingAdjustment,
+    ReconciliationResponse,
 )
 from app.schemas.ocr import (
     ExtractedMedication,
@@ -63,6 +66,9 @@ __all__ = [
     "SafetyAlertBase",
     "SafetyAlertCreate",
     "SafetyAlertRead",
+    "CumulativeToxicityAlert",
+    "FastingAdjustment",
+    "ReconciliationResponse",
     "ExtractedMedication",
     "PrescriptionExtractionResult",
     "PrescriptionUploadResponse",

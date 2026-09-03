@@ -17,7 +17,9 @@ from app.models import (
     PrescriptionStatus,
 )
 from app.schemas.ocr import PrescriptionUploadResponse, PrescriptionExtractionResult
+from app.schemas.safety import ReconciliationResponse
 from app.services.ocr_service import ocr_service
+from app.services.safety_service import safety_service
 
 logger = logging.getLogger(__name__)
 
@@ -166,3 +168,32 @@ async def upload_prescription(
         raw_image_url=raw_image_url,
         extraction=extraction_result,
     )
+
+
+@router.post(
+    "/{id}/verify-and-reconcile",
+    response_model=ReconciliationResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Verify prescription and reconcile against active user regimen",
+    description="Cross-references the prescription against all previous active medications for the user, checking duplicate molecules, cumulative dosages, and cultural dietary/fasting rules.",
+)
+async def verify_and_reconcile_prescription(
+    id: UUID,
+    session: AsyncSession = Depends(get_db),
+):
+    try:
+        return await safety_service.reconcile_prescription(
+            prescription_id=id,
+            session=session,
+        )
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e),
+        )
+    except Exception as e:
+        logger.error(f"Reconciliation error: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Reconciliation failed: {str(e)}",
+        )
