@@ -47,17 +47,28 @@ app.mount("/uploads", StaticFiles(directory=str(uploads_dir)), name="uploads")
 
 # Paths to user's frontend files and compiled React app
 workspace_root = Path(__file__).resolve().parent.parent.parent
-user_index_html = workspace_root / "index.html"
-user_login_html = workspace_root / "login.html"
-user_signup_html = workspace_root / "signup.html"
+static_dir = Path(__file__).resolve().parent / "static"
+
+
+def resolve_frontend_file(filename: str):
+    for candidate in [workspace_root / filename, static_dir / filename, Path("/app") / filename]:
+        if candidate.exists():
+            return candidate
+    return workspace_root / filename
+
+
+user_index_html = resolve_frontend_file("index.html")
+user_login_html = resolve_frontend_file("login.html")
+user_signup_html = resolve_frontend_file("signup.html")
 frontend_dist = workspace_root / "frontend" / "dist"
 
 # 1. Primary User Frontend Routes (index.html, login.html & signup.html)
 @app.get("/", tags=["User Frontend"], response_class=FileResponse)
 async def serve_user_root():
     """Serves the user's primary customized dashboard (index.html)."""
-    if user_index_html.exists():
-        return FileResponse(user_index_html)
+    idx = resolve_frontend_file("index.html")
+    if idx and idx.exists():
+        return FileResponse(idx)
     elif frontend_dist.exists() and (frontend_dist / "index.html").exists():
         return FileResponse(frontend_dist / "index.html")
     return {"message": f"Welcome to {settings.PROJECT_NAME}"}
@@ -66,8 +77,9 @@ async def serve_user_root():
 @app.get("/index.html", tags=["User Frontend"], response_class=FileResponse)
 async def serve_user_index_file():
     """Serves user's index.html directly."""
-    if user_index_html.exists():
-        return FileResponse(user_index_html)
+    idx = resolve_frontend_file("index.html")
+    if idx and idx.exists():
+        return FileResponse(idx)
     return FileResponse(frontend_dist / "index.html")
 
 
@@ -75,20 +87,29 @@ async def serve_user_index_file():
 @app.get("/login.html", tags=["User Frontend"], response_class=FileResponse)
 async def serve_user_login():
     """Serves the user's login and authentication page."""
-    if user_login_html.exists():
-        return FileResponse(user_login_html)
-    return FileResponse(user_index_html)
+    log = resolve_frontend_file("login.html")
+    if log and log.exists():
+        return FileResponse(log)
+    idx = resolve_frontend_file("index.html")
+    if idx and idx.exists():
+        return FileResponse(idx)
+    return FileResponse(frontend_dist / "index.html")
 
 
 @app.get("/signup", tags=["User Frontend"], response_class=FileResponse)
 @app.get("/signup.html", tags=["User Frontend"], response_class=FileResponse)
 async def serve_user_signup():
     """Serves the user's dedicated registration and sign-up page."""
-    if user_signup_html.exists():
-        return FileResponse(user_signup_html)
-    elif user_login_html.exists():
-        return FileResponse(user_login_html)
-    return FileResponse(user_index_html)
+    sup = resolve_frontend_file("signup.html")
+    if sup and sup.exists():
+        return FileResponse(sup)
+    log = resolve_frontend_file("login.html")
+    if log and log.exists():
+        return FileResponse(log)
+    idx = resolve_frontend_file("index.html")
+    if idx and idx.exists():
+        return FileResponse(idx)
+    return FileResponse(frontend_dist / "index.html")
 
 
 # 2. Secondary React Client (available at /react)
