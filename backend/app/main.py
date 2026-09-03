@@ -55,16 +55,20 @@ frontend_dist = workspace_root / "frontend" / "dist"
 from fastapi import Request
 from fastapi.responses import JSONResponse
 
-# 1. Primary User Frontend Routes (index.html, login.html & signup.html)
-@app.get("/", tags=["User Frontend"])
+# 1. Primary Unified Full-Stack Application
+if frontend_dist.exists() and (frontend_dist / "assets").exists():
+    app.mount("/assets", StaticFiles(directory=str(frontend_dist / "assets")), name="assets")
+
+
+@app.get("/", tags=["Unified Application"])
 async def serve_user_root(request: Request):
-    """Serves the user's primary customized dashboard (index.html) for browsers, or JSON metadata for API clients."""
+    """Serves the complete unified application for browsers, or API metadata for API clients."""
     accept = request.headers.get("accept", "")
     if "text/html" in accept:
-        if user_index_html.exists():
-            return FileResponse(user_index_html)
-        elif frontend_dist.exists() and (frontend_dist / "index.html").exists():
+        if frontend_dist.exists() and (frontend_dist / "index.html").exists():
             return FileResponse(frontend_dist / "index.html")
+        elif user_index_html.exists():
+            return FileResponse(user_index_html)
 
     return JSONResponse({
         "message": f"Welcome to {settings.PROJECT_NAME}",
@@ -74,9 +78,10 @@ async def serve_user_root(request: Request):
     })
 
 
-@app.get("/index.html", tags=["User Frontend"], response_class=FileResponse)
-async def serve_user_index_file():
-    """Serves user's index.html directly."""
+@app.get("/portal", tags=["User Frontend"], response_class=FileResponse)
+@app.get("/portal.html", tags=["User Frontend"], response_class=FileResponse)
+async def serve_static_portal():
+    """Serves the standalone static dashboard if requested."""
     if user_index_html.exists():
         return FileResponse(user_index_html)
     return FileResponse(frontend_dist / "index.html")
@@ -102,13 +107,20 @@ async def serve_user_signup():
     return FileResponse(user_index_html)
 
 
-# 2. Secondary React Client (available at /react)
-if frontend_dist.exists():
-    if (frontend_dist / "assets").exists():
-        app.mount("/assets", StaticFiles(directory=str(frontend_dist / "assets")), name="assets")
-
-    @app.get("/react", tags=["React Frontend"])
-    @app.get("/react/{full_path:path}", tags=["React Frontend"])
-    async def serve_react_frontend(full_path: str = ""):
-        """Serves the secondary React / Vite client application."""
+# 2. Universal Client Routing (all tabs /overview, /schedule, /prescriptions, /safety, /reports, /react)
+@app.get("/overview", tags=["Unified Application"])
+@app.get("/schedule", tags=["Unified Application"])
+@app.get("/prescriptions", tags=["Unified Application"])
+@app.get("/safety", tags=["Unified Application"])
+@app.get("/reports", tags=["Unified Application"])
+@app.get("/history", tags=["Unified Application"])
+@app.get("/react", tags=["Unified Application"])
+@app.get("/react/{full_path:path}", tags=["Unified Application"])
+async def serve_app_tabs(full_path: str = ""):
+    """Routes client tabs back to the unified master application."""
+    if frontend_dist.exists() and (frontend_dist / "index.html").exists():
         return FileResponse(frontend_dist / "index.html")
+    elif user_index_html.exists():
+        return FileResponse(user_index_html)
+    return JSONResponse({"message": "Application bundle not found."})
+
