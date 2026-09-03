@@ -38,7 +38,7 @@ Extract the clinical information with 100% precision:
 class OCRService:
     def __init__(self, api_key: Optional[str] = None):
         self.api_key = api_key or settings.GEMINI_API_KEY
-        self.model_name = "gemini-2.5-flash"
+        self.model_name = "gemini-flash-latest"
         self._client: Optional[genai.Client] = None
 
     @property
@@ -86,29 +86,38 @@ class OCRService:
             "frequencies, food timing relations, and doctor details into the requested clinical JSON schema."
         )
 
-        try:
-            # Execute inference via google-genai SDK
-            response = self.client.models.generate_content(
-                model=self.model_name,
-                contents=[file_part, prompt_text],
-                config=config,
-            )
+        models_to_try = [self.model_name, "gemini-3.6-flash", "gemini-3.5-flash", "gemini-flash-latest"]
+        seen_models = set()
+        last_err = None
 
-            raw_json = response.text
-            if not raw_json:
-                raise ValueError("Received empty response from Gemini vision model.")
+        for model in models_to_try:
+            if model in seen_models:
+                continue
+            seen_models.add(model)
+            try:
+                response = self.client.models.generate_content(
+                    model=model,
+                    contents=[file_part, prompt_text],
+                    config=config,
+                )
 
-            # Validate and instantiate typed Pydantic result
-            result = PrescriptionExtractionResult.model_validate_json(raw_json)
-            logger.info(
-                f"Successfully parsed prescription: {len(result.medications)} medications found, "
-                f"requires_verification={result.requires_verification}"
-            )
-            return result
+                raw_json = response.text
+                if not raw_json:
+                    raise ValueError(f"Received empty response from Gemini vision model {model}.")
 
-        except Exception as e:
-            logger.error(f"Gemini prescription parsing failed: {e}", exc_info=True)
-            raise
+                result = PrescriptionExtractionResult.model_validate_json(raw_json)
+                logger.info(
+                    f"Successfully parsed prescription via {model}: {len(result.medications)} medications found, "
+                    f"requires_verification={result.requires_verification}"
+                )
+                return result
+
+            except Exception as e:
+                last_err = e
+                logger.warning(f"Inference with {model} failed: {e}. Trying fallback model...")
+
+        logger.error(f"All Gemini prescription parsing models failed: {last_err}", exc_info=True)
+        raise last_err or RuntimeError("All Gemini OCR models failed.")
 
 
 # Global singleton instance

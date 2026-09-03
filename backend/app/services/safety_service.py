@@ -231,7 +231,7 @@ class SafetyService:
                     f"Return only the translated sentence without extra commentary."
                 )
                 resp = client.models.generate_content(
-                    model="gemini-2.5-flash",
+                    model="gemini-flash-latest",
                     contents=[prompt],
                 )
                 if resp.text and resp.text.strip():
